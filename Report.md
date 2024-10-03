@@ -52,6 +52,19 @@
     ```
 
 ### 2c. Evaluation plan - what and how will you measure and compare
-- Input sizes, Input types
-- Strong scaling (same problem size, increase number of processors/nodes)
-- Weak scaling (increase problem size, increase number of processors)
+
+### Input Sizes / Input Types
+- Varying sizes in order to test the scalability 
+    - Example: 10<sup>4</sup>, 10<sup>6</sup>, 10<sup>8</sup>...
+- Input types will consist of random data, sorted data, and reversally sorted arrays
+
+### Time:
+- Measure the total time taken to sort the array using different number of processors.
+- Measure the time between each worker threads assuming that the worker threads are the ones sorting.
+
+### Scalability
+#### Strong Scaling
+- Maintain the same problem size while increasing the number of processors to measure the time decreasing 
+
+#### Weak Scaling
+- Increase the problem size proportionally with the processors to measure the execution time whether it'll be stable or not.
