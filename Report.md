@@ -1,12 +1,15 @@
 # CSCE 435 Group project
 
 ## 0. Group number: 
+Group 16
 
 ## 1. Group members:
 1. Jaesun Park
 2. Kelvin Zheng
 3. B.J Min
 4. Allen Zhao
+
+Team Communication Method: Discord
 
 ## 2. Project topic (e.g., parallel sorting algorithms)
 
