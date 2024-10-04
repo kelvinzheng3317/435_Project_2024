@@ -29,6 +29,7 @@
 - For MPI programs, include MPI calls you will use to coordinate between processes
 
 - Sample Sort Pseudocode:
+    ```
     MPI_Init()
     int rank
     int num_procs
@@ -49,6 +50,7 @@
         final_sorted = merge(sorted_subarrays)
 
     MPI_Finalize()
+    ```
 
 - Merge Sort Pseudocode:
     ```Initialize MPI
