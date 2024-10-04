@@ -81,7 +81,7 @@ Team Communication Method: Discord
     Finalize MPI
     ```
 
--Bitonic Sort Pseudocode:
+- Bitonic Sort Pseudocode:
     ```
     Int rank
     Int N // number of processes
