@@ -43,7 +43,7 @@ Team Communication Method: Discord
         
     scatter data to processes using MPI_Scatter(local_data)
         
-    sorted_local = sample_sort(local_data)
+    sorted_local = sort(local_data)
 
     if rank == 0:    # i.e. MASTER
         sorted_subarrays = empty array
