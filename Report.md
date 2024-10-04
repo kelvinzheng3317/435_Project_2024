@@ -80,6 +80,49 @@ Team Communication Method: Discord
     Finalize MPI
     ```
 
+-Bitonic Sort Pseudocode:
+    ```
+    Int rank
+    Int N // number of processes
+    MPI_Init // initialize MPI for communication
+    MPI_Comm_rank // get the process rank
+    MPI_Comm_size // get the number of processes N
+    
+    If rank == 0:
+      Initialize int array of size 2^x where x is an integer
+      M = size(array) / N
+    
+    MPI_Bcast M(the size of local arrays) from rank 0 to all processes
+    MPI_Scatter to distribute array data among all processes 
+
+    array1 = array for local data of process
+    sort array1
+
+    For (int i=1; i <= N/2; i *= 2): // i = first and largest step size of current phase
+      procs_per_group = i * 2
+      Ascending if (rank // procs_per_group) % 2 == 0, descending otherwise
+      For (int step = i; step > 0; step /= 2):
+        if (rank % step) < step / 2:
+          partner_rank = rank + step
+        else:
+          partner_rank = rank - step
+          
+        MPI_Sendrecv to send array1 to partner and put partner’s data in array2
+
+        If (Ascending and rank <  partner_rank) OR (descending and rank > partner_rank):
+          Iterate from left sides of array1 and array2:
+            create a temp array of size m with the smallest values from array1 and array2, sorted in increasing order
+          Set array1 equal to temp
+        Else:
+          Iterate from the right sides of array1 and array2:
+            Create a temp array of size M of the largest values of array1 and array2 in increasing order
+          Set array1 equal to temp
+
+    If rank == 0:
+      Merge together all local arrays from all workers using MPI_gather
+      Print result array
+    ```
+
 ### 2c. Evaluation plan - what and how will you measure and compare
 
 ### Input Sizes / Input Types
