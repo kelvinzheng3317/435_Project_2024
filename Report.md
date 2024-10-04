@@ -15,6 +15,8 @@
 - Bitonic Sort:
 
 - Sample Sort:
+    Sample sort is a generalization of quicksort designed for parallelized processing. It takes a sample size of s from the original data. It sorts that chosen sample and then divides the sorted sample into p equal-sized groups called 'buckets'. (p is generally chosen as the number of available processors) Then you take p-1 elements from the sorted sample to be 'pivot' values that are used to determine the bucket ranges. Then partition the original data into p buckets with the value in each bucket being in the range between two pivot values. Sort each bucket and then merge them all together. Depending on the size of subarrays, we would either run a simpler sorting algorithm or recursively sample sort them until the remaining subarrays are small enough to be sorted via a simpler sorting algorithm.
+    
 
 - Merge Sort: 
     To implement a parallel version of merge sort using MPI, diving the sorting task across multiple processors.
@@ -25,6 +27,28 @@
 
 ### 2b. Pseudocode for each parallel algorithm
 - For MPI programs, include MPI calls you will use to coordinate between processes
+
+- Sample Sort Pseudocode:
+    MPI_Init()
+    int rank
+    int num_procs
+
+    procs_elems = length(data) / num_procs   # The number of elements per process
+    local_data = empty array of proc_elems
+        
+    scatter data to processes using MPI_Scatter(local_data)
+        
+    sorted_local = sample_sort(local_data)
+
+    if rank == 0:    # i.e. MASTER
+        sorted_subarrays = empty array
+    
+    gather sorted local data using MPI_Gather(sorted_local)
+
+    if rank == 0:   # i.e. MASTER
+        final_sorted = merge(sorted_subarrays)
+
+    MPI_Finalize()
 
 - Merge Sort Pseudocode:
     ```Initialize MPI
