@@ -28,6 +28,10 @@ Team Communication Method: Discord
     and send them to the workers. The workers will then take that subarray, apply merge sort, and send it back to the master. The master process will then take and merge all the sorted subarrays.
 
 - Radix Sort:
+    Radix Sort is a non-comparative sorting algorithm that processes integers by grouping them based on individual digits, starting from the least significant digit to the most significant.
+    It sorts numbers by distributing them into "buckets" corresponding to each digit, performing this for each digit position in sequence.
+    The algorithm can work with any base (e.g., binary, decimal) and uses counting sort as a subroutine to handle sorting at each digit. Parallel implmentation of radix sort will be done with MPI, which splits the workload across multiple processors.
+    The unsorted array will first be distributed across processors, then each process carries out a digit-wise sort locally, followed by a global prefix-sum to determine where each bit should be placed globally, redistribute those bits, and then finally gather the sorted chunks back to the master process. 
 
 ### 2b. Pseudocode for each parallel algorithm
 - For MPI programs, include MPI calls you will use to coordinate between processes
@@ -123,6 +127,26 @@ Team Communication Method: Discord
       Merge together all local arrays from all workers using MPI_gather
       Print result array
     ```
+- Radix Sort Psuedocode:
+  ```
+  array full_data
+  array global_data
+  allocate space for array local_data which holds the portion of the data for each process
+  MPI_Init()
+  if rank == MASTER:
+      MPI_Scatter(local_data) to split the full_data and send chunks to each process
+  else:
+      from least significant bit to most significant bit:
+          Count how many numbers have 0 or 1 in the current bit position
+          for each number in the local_data chunk:
+              Extract the bit at the current position for each number
+          MPI_Allreduce(global_count) to sum up the local counts across all processes
+          MPI_Scan(prefix_sum) to computer prefix_sums and determine where each process should start placing its numbers
+  
+  if rank == MASTER:
+      MPI_Gather(global_data) to gather the sorted chunks back to the master process
+  MPI_Finalize()
+  ```
 
 ### 2c. Evaluation plan - what and how will you measure and compare
 
