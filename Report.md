@@ -21,9 +21,9 @@ Team Communication Method: Discord
 - Sample Sort:
     Sample sort is a generalization of quicksort designed for parallelized processing. It takes a sample size of s from the original data. It sorts that chosen sample and then divides the sorted sample into p equal-sized groups called 'buckets'. (p is generally chosen as the number of available processors) Then you take p-1 elements from the sorted sample to be 'pivot' values that are used to determine the bucket ranges. Then partition the original data into p buckets with the value in each bucket being in the range between two pivot values. Sort each bucket and then merge them all together. Depending on the size of subarrays, we would either run a simpler sorting algorithm or recursively sample sort them until the remaining subarrays are small enough to be sorted via a simpler sorting algorithm.
     
-
 - Merge Sort: 
-    To implement a parallel version of merge sort using MPI, diving the sorting task across multiple processors.
+    Merge sort is a form of sorting algorithm that uses the divide and conquer methodology to sort data by repeatedly dividing itself into halves until it consist one element, merging them back together in a sorted manner.
+    To implement a parallel version of merge sort using MPI, dividing the sorting task across multiple processors.
     The idea is for the parent processor to divide the array into x subarrays (depending on how many processors are being used)
     and send them to the workers. The workers will then take that subarray, apply merge sort, and send it back to the master. The master process will then take and merge all the sorted subarrays.
 
