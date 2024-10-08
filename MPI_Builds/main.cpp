@@ -5,11 +5,12 @@
 #include <adiak.hpp>
 
 #include <string.h>
+#include <stdlib.h>
 
 
 int main(int argc, char* argv[]) {
   int arrSize = 64;
-  string arrType = "sorted"; // sorted, onePercent, random, reverseSorted
+  string arrType = "sorted"; // sorted, perturbed, random, reverse
   string sortType = "bitonic" // bitonic, merge, sample, radix
 
   if (argc == 3) {
@@ -26,17 +27,30 @@ int main(int argc, char* argv[]) {
   MPI_Comm_size(MPI_COMM_WORLD,&num_procs);
 
   if (rank == 0) {
-    // initialize array
+    // initialize array based on type given
     int data[arrSize];
 
     if (arrType == "sorted") {
       for (int i=0; i<arrSize; ++i) {
         data[i] = i;
       }
+    } else if (arrType == "perturbed") {
+      // should it be exactly 1% of the data or is approximately 1% good enough?
+      for (int i=0; i<arrSize; ++i) {
+        if (rand() % 100 == 1) {
+          data[i] = rand() % 100;
+        } else {
+          data[i] = i;
+        }
+      }
     } else if (arrType == "random")
     {
       for (int i = 0; i < arrSize; i++) {
         data[i] = rand() % 100;
+      }
+    } else if (arrType == "reverse") {
+      for (int i=0; i < arrSize; i++) {
+        data[i] = arrSize - i;
       }
     }
     
