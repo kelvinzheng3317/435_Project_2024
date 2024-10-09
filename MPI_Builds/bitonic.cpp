@@ -6,6 +6,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <cmath>
 
 #include <algorithm>
 #include <iterator>
@@ -17,9 +18,6 @@ int main(int argc, char* argv[]) {
   string arrType = "sorted"; // sorted, perturbed, random, reverse
   string sortType = "bitonic"; // bitonic, merge, sample, radix
 
-  for (int i=0; i<argc; ++i) {
-    cout << "arg " << i << " : " << argv[i] << endl;
-  }
   if (argc == 3) {
     arrSize = atoi(argv[1]);
     arrType = argv[2];
@@ -36,6 +34,12 @@ int main(int argc, char* argv[]) {
   int data[arrSize];
 
   if (procID == 0) {
+    // FOR DEBUGGING
+    cout << "number of processes: " << num_procs << endl;
+    for (int i=0; i<argc; ++i) {
+      cout << "arg " << i << " : " << argv[i] << endl;
+    }
+    
     // initialize array based on type given
     if (arrType == "sorted") {
       for (int i=0; i<arrSize; ++i) {
@@ -61,6 +65,11 @@ int main(int argc, char* argv[]) {
       }
     }
     
+    // Prints out starting array for debugging purposes
+    for(int i=0; i<arrSize; ++i) {
+      cout << data[i] <<", ";
+    }
+    cout << endl;
   }
 
   int local_size = arrSize / num_procs;
@@ -68,27 +77,40 @@ int main(int argc, char* argv[]) {
 
   MPI_Scatter(&data, local_size, MPI_INT, &local_arr, local_size, MPI_INT, 0, MPI_COMM_WORLD);
 
-  // Do the sort
-
   // BITONIC SORT
   
   // Sorting local array - currently done using alg library
   // do I need to do this with a non-parallized bitonic sort???
   sort(local_arr, local_arr + local_size);
+  // if (procID == 0) {
+  //   cout << "sorted local array: ";
+  //   for (int i=0; i<local_size; ++i) {
+  //     cout << local_arr[i] << ", ";
+  //   }
+  //   cout << endl;
+  // }
 
   int partner_arr[local_size];
-  for (int i=1; i <= num_procs/2; i *= 2) { // i = first and largest step size of current phase
-    int procs_per_group = i * 2;
+  int num_phases = num_procs / 2;
+  for (int i=1; i <= num_phases; i *= 2) { // i = first and largest step size of current phase
+    cout << "rank: " << procID << ", i = " << i << endl;
+    int procs_per_group = 2 * i;
+
     // determine if local array is ascending or descending
     bool isAscending = (procID / procs_per_group) % 2 == 0;
+    // cout << "rank: " << procID << ", Ascending: " << isAscending << endl;
+
     int partner_rank;
     int partner_arr[local_size];
     for (int step = i; step > 0; step /= 2) {
-      if ((procID % step) < (step / 2)) {
+      cout << "rank: " << procID << ", step = " << step << endl;
+      int step_group_size = 2 * step;
+      if ((procID % step_group_size) < (step_group_size / 2)) {
         partner_rank = procID + step;
       } else {
         partner_rank = procID - step;
       }
+      cout << "rank: " << procID << ", partner rank: " << partner_rank << endl;
         
       // MPI_Sendrecv to send array1 to partner and put partner’s data in array2
       MPI_Sendrecv(&local_arr, local_size, MPI_INT, partner_rank, 0, partner_arr, local_size, MPI_INT, partner_rank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -132,16 +154,18 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  MPI_Gather(local_arr, local_size, MPI_INT, &data, local_size, MPI_INT, 0, MPI_COMM_WORLD);
+  MPI_Gather(&local_arr, local_size, MPI_INT, &data, local_size, MPI_INT, 0, MPI_COMM_WORLD);
 
   // print out results to confirm that the array is correctly sorted
+  cout << "Finished sorting" << endl;
   if (procID == 0) {
     bool correct = true;
     for (int i = 0; i < arrSize - 1; i++) {
+      cout << data[i] << endl;
       if (data[i] > data[i+1]) {
         correct = false;
         cout << "Array is not correctly sorted" << endl;
-        break;
+        // break;
       }
     }
     if (correct) {
