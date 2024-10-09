@@ -8,17 +8,21 @@
 #include <stdlib.h>
 
 #include <algorithm>
+#include <iterator>
 
 using namespace std;
 
 int main(int argc, char* argv[]) {
   int arrSize = 64;
   string arrType = "sorted"; // sorted, perturbed, random, reverse
-  string sortType = "bitonic" // bitonic, merge, sample, radix
+  string sortType = "bitonic"; // bitonic, merge, sample, radix
 
+  for (int i=0; i<argc; ++i) {
+    cout << "arg " << i << " : " << argv[i] << endl;
+  }
   if (argc == 3) {
     arrSize = atoi(argv[1]);
-    arrVals = argv[2];
+    arrType = argv[2];
   }
 
 
@@ -29,10 +33,10 @@ int main(int argc, char* argv[]) {
   MPI_Comm_rank(MPI_COMM_WORLD, &procID);
   MPI_Comm_size(MPI_COMM_WORLD,&num_procs);
 
+  int data[arrSize];
+
   if (procID == 0) {
     // initialize array based on type given
-    int data[arrSize];
-
     if (arrType == "sorted") {
       for (int i=0; i<arrSize; ++i) {
         data[i] = i;
@@ -70,24 +74,24 @@ int main(int argc, char* argv[]) {
   
   // Sorting local array - currently done using alg library
   // do I need to do this with a non-parallized bitonic sort???
-  sort(begin(local_arr), end(local_arr));
+  sort(local_arr, local_arr + local_size);
 
   int partner_arr[local_size];
   for (int i=1; i <= num_procs/2; i *= 2) { // i = first and largest step size of current phase
     int procs_per_group = i * 2;
     // determine if local array is ascending or descending
-    bool isAscending = (procID / procs_per_group) % 2 == 0
+    bool isAscending = (procID / procs_per_group) % 2 == 0;
     int partner_rank;
     int partner_arr[local_size];
     for (int step = i; step > 0; step /= 2) {
-      if (procID % step) < step / 2 {
+      if ((procID % step) < (step / 2)) {
         partner_rank = procID + step;
       } else {
         partner_rank = procID - step;
       }
         
       // MPI_Sendrecv to send array1 to partner and put partner’s data in array2
-      MPI_Sendrecv(&local_arr, local_size, MPI_INT, partner_rank, 0, partner_arr, local_size, MPI_INT, partner_rank, 0, MPI_COMM_WORLD);
+      MPI_Sendrecv(&local_arr, local_size, MPI_INT, partner_rank, 0, partner_arr, local_size, MPI_INT, partner_rank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
       int temp[local_size];
       if ((isAscending && procID < partner_rank) || (!isAscending && procID > partner_rank)) {
@@ -106,7 +110,7 @@ int main(int argc, char* argv[]) {
           }
           temp_ind++;
         }
-        array1 = temp;
+        memcpy(local_arr, temp, local_size * sizeof(int));
       } else {
         // Iterate from the right sides of array1 and array2
         int temp_ind = local_size - 1;
@@ -123,7 +127,7 @@ int main(int argc, char* argv[]) {
           }
           temp_ind--;
         }
-        array1 = temp;
+        memcpy(local_arr, temp, local_size * sizeof(int));
       }
     }
   }
