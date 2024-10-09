@@ -103,14 +103,14 @@ int main(int argc, char* argv[]) {
     int partner_rank;
     int partner_arr[local_size];
     for (int step = i; step > 0; step /= 2) {
-      cout << "rank: " << procID << ", step = " << step << endl;
+      // cout << "rank: " << procID << ", step = " << step << endl;
       int step_group_size = 2 * step;
       if ((procID % step_group_size) < (step_group_size / 2)) {
         partner_rank = procID + step;
       } else {
         partner_rank = procID - step;
       }
-      cout << "rank: " << procID << ", partner rank: " << partner_rank << endl;
+      // cout << "rank: " << procID << ", partner rank: " << partner_rank << endl;
         
       // MPI_Sendrecv to send array1 to partner and put partner’s data in array2
       MPI_Sendrecv(&local_arr, local_size, MPI_INT, partner_rank, 0, partner_arr, local_size, MPI_INT, partner_rank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -157,11 +157,11 @@ int main(int argc, char* argv[]) {
   MPI_Gather(&local_arr, local_size, MPI_INT, &data, local_size, MPI_INT, 0, MPI_COMM_WORLD);
 
   // print out results to confirm that the array is correctly sorted
-  cout << "Finished sorting" << endl;
+  // cout << "Finished sorting" << endl;
   if (procID == 0) {
     bool correct = true;
     for (int i = 0; i < arrSize - 1; i++) {
-      cout << data[i] << endl;
+      cout << data[i] << ", ";
       if (data[i] > data[i+1]) {
         correct = false;
         cout << "Array is not correctly sorted" << endl;
@@ -169,7 +169,7 @@ int main(int argc, char* argv[]) {
       }
     }
     if (correct) {
-      cout << "Array is correctly sorted" << endl;
+      cout << "\n Array is correctly sorted" << endl;
     }
   }
 
