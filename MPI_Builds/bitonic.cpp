@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
       // should it be exactly 1% of the data or is approximately 1% good enough?
       for (int i=0; i<arrSize; ++i) {
         if (rand() % 100 == 1) {
-          data[i] = rand() % 100;
+          data[i] = rand();
         } else {
           data[i] = i;
         }
@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
     } else if (arrType == "random")
     {
       for (int i = 0; i < arrSize; i++) {
-        data[i] = rand() % 100;
+        data[i] = rand();
       }
     } else if (arrType == "reverse") {
       for (int i=0; i < arrSize; i++) {
