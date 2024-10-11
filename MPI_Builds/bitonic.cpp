@@ -74,9 +74,11 @@ int main(int argc, char* argv[]) {
       cout << data[i] <<", ";
     }
     cout << endl;
+    
+    CALI_MARK_BEGIN("Bitonic Sort");
+    double sort_start = MPI_Wtime();
   }
 
-  CALI_MARK_BEGIN("Bitonic Sort");
 
   int local_size = arrSize / num_procs;
   int local_arr[local_size];
@@ -98,7 +100,7 @@ int main(int argc, char* argv[]) {
   int partner_arr[local_size];
   int num_phases = num_procs / 2;
   for (int i=1; i <= num_phases; i *= 2) { // i = first and largest step size of current phase
-    cout << "rank: " << procID << ", i = " << i << endl;
+    // cout << "rank: " << procID << ", i = " << i << endl;
     int procs_per_group = 2 * i;
 
     // determine if local array is ascending or descending
@@ -161,11 +163,14 @@ int main(int argc, char* argv[]) {
 
   MPI_Gather(&local_arr, local_size, MPI_INT, &data, local_size, MPI_INT, 0, MPI_COMM_WORLD);
 
-  CALI_MARK_END("Bitonic Sort");
 
   // print out results to confirm that the array is correctly sorted
   // cout << "Finished sorting" << endl;
   if (procID == 0) {
+    CALI_MARK_END("Bitonic Sort");
+    double sort_end = MPI_Wtime();
+    cout << "Sorting time: " << sort_end - sort_start << endl;
+
     bool correct = true;
     for (int i = 0; i < arrSize - 1; i++) {
       // cout << data[i] << ", ";
@@ -180,7 +185,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  mrg.stop();
+  mgr.stop();
   mgr.flush();
 
   MPI_Finalize();
