@@ -14,6 +14,8 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
+  CALI_CXX_MARK_FUNCTION;
+
   int arrSize = 64;
   string arrType = "sorted"; // sorted, perturbed, random, reverse
   string sortType = "bitonic"; // bitonic, merge, sample, radix
@@ -23,6 +25,8 @@ int main(int argc, char* argv[]) {
     arrType = argv[2];
   }
 
+  cali::ConfigManager mgr;
+  mgr.start();
 
   int procID;
   int num_procs;
@@ -72,6 +76,8 @@ int main(int argc, char* argv[]) {
     cout << endl;
   }
 
+  CALI_MARK_BEGIN("Bitonic Sort");
+
   int local_size = arrSize / num_procs;
   int local_arr[local_size];
 
@@ -80,7 +86,6 @@ int main(int argc, char* argv[]) {
   // BITONIC SORT
   
   // Sorting local array - currently done using alg library
-  // do I need to do this with a non-parallized bitonic sort???
   sort(local_arr, local_arr + local_size);
   // if (procID == 0) {
   //   cout << "sorted local array: ";
@@ -156,22 +161,27 @@ int main(int argc, char* argv[]) {
 
   MPI_Gather(&local_arr, local_size, MPI_INT, &data, local_size, MPI_INT, 0, MPI_COMM_WORLD);
 
+  CALI_MARK_END("Bitonic Sort");
+
   // print out results to confirm that the array is correctly sorted
   // cout << "Finished sorting" << endl;
   if (procID == 0) {
     bool correct = true;
     for (int i = 0; i < arrSize - 1; i++) {
-      cout << data[i] << ", ";
+      // cout << data[i] << ", ";
       if (data[i] > data[i+1]) {
         correct = false;
         cout << "Array is not correctly sorted" << endl;
-        // break;
+        break;
       }
     }
     if (correct) {
       cout << "\n Array is correctly sorted" << endl;
     }
   }
+
+  mrg.stop();
+  mgr.flush();
 
   MPI_Finalize();
 }
