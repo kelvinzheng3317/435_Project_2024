@@ -33,6 +33,7 @@ int main(int argc, char** argv) {
     const int initSize = 16;
     vector<int> mainArr;
 
+    // Random array data generation
     if (rank == 0) {
         std::rand(std::time(0));
         mainArr.resize(initSize);
@@ -55,8 +56,9 @@ int main(int argc, char** argv) {
 
     
     // 3. Select pivots
-    // NOTE: samples.[i * num_procs / (num_procs + 1)] can be changed to get different set of samples
-    // Chose [i * num_procs / (num_procs + 1)] for evenlt distributed selection
+    
+    /* NOTE: samples.[i * num_procs / (num_procs + 1)] can be changed to get different set of samples.
+    Chose [i * num_procs / (num_procs + 1)] for evenlt distributed selection. */
 
     vector<int> pivots(num_procs - 1);
     if (rank == 0) {
@@ -66,7 +68,7 @@ int main(int argc, char** argv) {
         }
         sort(samples.begin(), samples.end());
         for (int i = 1; i < num_procs; ++i) {
-            pivots[i - 1] = samples.[i * num_procs / (num_procs + 1)];
+            pivots[i - 1] = samples.[i * num_procs / (num_procs + 1)]; //NOTE
         }
     }
     MPI_Bcast(pivots.data(), num_procs - 1, MPI_INT, 0, MPI_COMM_WORLD);
