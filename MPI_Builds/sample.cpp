@@ -4,13 +4,13 @@
 #include <iostream>
 #include <numeric>
 
+#include <caliper/cali.h>
+#include <caliper/cali-manager.h>
+#include <adiak.hpp>
+
 // For data generation or randomized array
 #include <cstdlib>
 #include <ctime>
-
-// For performance analysis, not used currently
-#include <caliper/cali.h>
-#include <caliper/cali-manager.h>
 
 using std::vector;
 using std::cout, std::endl;
@@ -26,6 +26,8 @@ void printArray(const vector<int>& arr, int rank, const std::string& step) {
 }
 
 int main(int argc, char** argv) {
+    CALI_CXX_MARK_FUNCTION;
+
     MPI_Init(&argc, &argv);
 
     int rank, num_procs;
@@ -44,6 +46,8 @@ int main(int argc, char** argv) {
         }
         printArray(mainArr, rank, "Initial Array");
     }
+
+    CALI_MARK_BEGIN("Sample Sort");
 
     int localSize = initSize / num_procs;
     vector<int> localArr(localSize);
@@ -120,6 +124,8 @@ int main(int argc, char** argv) {
         finalArr.resize(initSize);
     }
     MPI_Gather(recvBuffer.data(), recvBuffer.size(), MPI_INT, sortedArray.data(), recvBuffer.size(), MPI_INT, 0, MPI_COMM_WORLD);
+
+    CALI_MARK_END("Sample Sort");
 
     if (rank == 0) {
         cout << "Final sorted array: ";
