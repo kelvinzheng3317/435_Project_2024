@@ -11,6 +11,8 @@
 #include <algorithm>
 #include <iterator>
 
+#include "sort.cpp"
+
 using namespace std;
 
 int main(int argc, char* argv[]) {
@@ -45,30 +47,7 @@ int main(int argc, char* argv[]) {
       cout << "arg " << i << " : " << argv[i] << endl;
     }
     
-    // initialize array based on type given
-    if (arrType == "sorted") {
-      for (int i=0; i<arrSize; ++i) {
-        data[i] = i;
-      }
-    } else if (arrType == "perturbed") {
-      // should it be exactly 1% of the data or is approximately 1% good enough?
-      for (int i=0; i<arrSize; ++i) {
-        if (rand() % 100 == 1) {
-          data[i] = rand();
-        } else {
-          data[i] = i;
-        }
-      }
-    } else if (arrType == "random")
-    {
-      for (int i = 0; i < arrSize; i++) {
-        data[i] = rand();
-      }
-    } else if (arrType == "reverse") {
-      for (int i=0; i < arrSize; i++) {
-        data[i] = arrSize - i;
-      }
-    }
+    generateArray(data, arrType, arrSize);
     
     // Prints out starting array for debugging purposes
     for(int i=0; i<arrSize; ++i) {
@@ -90,13 +69,6 @@ int main(int argc, char* argv[]) {
   
   // Sorting local array - currently done using alg library
   sort(local_arr, local_arr + local_size);
-  // if (procID == 0) {
-  //   cout << "sorted local array: ";
-  //   for (int i=0; i<local_size; ++i) {
-  //     cout << local_arr[i] << ", ";
-  //   }
-  //   cout << endl;
-  // }
 
   int partner_arr[local_size];
   int num_phases = num_procs / 2;
