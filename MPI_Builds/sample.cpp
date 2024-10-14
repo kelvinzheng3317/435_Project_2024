@@ -12,6 +12,8 @@
 #include <cstdlib>
 #include <ctime>
 
+#include "sort.cpp"
+
 using std::vector;
 using std::cout;
 using std::endl;
@@ -30,7 +32,19 @@ void printArray(const vector<int>& arr, int rank, const std::string& step) {
 int main(int argc, char* argv[]) {
     CALI_CXX_MARK_FUNCTION;
 
-    int initSize = atoi(argv[1]);
+    int initSize = 16;
+    string arrType = "random"; // sorted, perturbed, random, reverse
+    string sortType = "sample"; // bitonic, merge, sample, radix
+
+    if (argc == 3) {
+        initSize = atoi(argv[1]);
+        arrType = argv[2];
+    }
+
+    cali::ConfigManager mgr;
+    mgr.start();
+    double sort_start, sort_end;
+
     int rank, num_procs;
 
     MPI_Init(&argc, &argv);
@@ -40,14 +54,20 @@ int main(int argc, char* argv[]) {
     vector<int> mainArr;
 
     // Random array data generation
+    // if (rank == 0) {
+    //     std::srand(std::time(0));
+    //     mainArr.resize(initSize);
+    //     for (int i = 0; i < initSize; ++i) {
+    //         mainArr[i] = std::rand() % 100;    // Fill array with numbers between 0 and 99
+    //     }
+    //     printArray(mainArr, rank, "Initial Array");
+    // }
+    
     if (rank == 0) {
-        std::srand(std::time(0));
-        mainArr.resize(initSize);
-        for (int i = 0; i < initSize; ++i) {
-            mainArr[i] = std::rand() % 100;    // Fill array with numbers between 0 and 99
-        }
+        generateArray(mainArr, arrType, arrSize);
         printArray(mainArr, rank, "Initial Array");
     }
+
 
     CALI_MARK_BEGIN("Sample Sort");
 
