@@ -75,6 +75,16 @@ int main(int argc, char** argv) {
     printArray(pivots, rank, "Pivots");
 
     // 4. Bucketing based on pivots
+    vector<vector<int>> buckets(num_procs);
+    for (int i = 0; i < localSize; ++i) {
+        int bucket_no = 0;
+        while ((bucket_no < num_procs - 1) && (localArr[i] > pivots[bucket_no])) {
+            ++bucket_no;
+        }
+        buckets[bucket_no].push_back(localArr[i]);
+    }
+
+    //
 
     return 0;
 }
