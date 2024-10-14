@@ -27,6 +27,7 @@ int main(int argc, char* argv[]) {
 
   cali::ConfigManager mgr;
   mgr.start();
+  double sort_start, sort_end;
 
   int procID;
   int num_procs;
@@ -76,7 +77,7 @@ int main(int argc, char* argv[]) {
     cout << endl;
     
     CALI_MARK_BEGIN("Bitonic Sort");
-    double sort_start = MPI_Wtime();
+    sort_start = MPI_Wtime();
   }
 
 
@@ -168,7 +169,7 @@ int main(int argc, char* argv[]) {
   // cout << "Finished sorting" << endl;
   if (procID == 0) {
     CALI_MARK_END("Bitonic Sort");
-    double sort_end = MPI_Wtime();
+    sort_end = MPI_Wtime();
     cout << "Sorting time: " << sort_end - sort_start << endl;
 
     bool correct = true;
