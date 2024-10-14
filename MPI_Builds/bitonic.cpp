@@ -11,6 +11,8 @@
 #include <algorithm>
 #include <iterator>
 
+#include "sort.cpp"
+
 using namespace std;
 
 int main(int argc, char* argv[]) {
@@ -27,6 +29,7 @@ int main(int argc, char* argv[]) {
 
   cali::ConfigManager mgr;
   mgr.start();
+  double sort_start, sort_end;
 
   int procID;
   int num_procs;
@@ -44,39 +47,18 @@ int main(int argc, char* argv[]) {
       cout << "arg " << i << " : " << argv[i] << endl;
     }
     
-    // initialize array based on type given
-    if (arrType == "sorted") {
-      for (int i=0; i<arrSize; ++i) {
-        data[i] = i;
-      }
-    } else if (arrType == "perturbed") {
-      // should it be exactly 1% of the data or is approximately 1% good enough?
-      for (int i=0; i<arrSize; ++i) {
-        if (rand() % 100 == 1) {
-          data[i] = rand() % 100;
-        } else {
-          data[i] = i;
-        }
-      }
-    } else if (arrType == "random")
-    {
-      for (int i = 0; i < arrSize; i++) {
-        data[i] = rand() % 100;
-      }
-    } else if (arrType == "reverse") {
-      for (int i=0; i < arrSize; i++) {
-        data[i] = arrSize - i;
-      }
-    }
+    generateArray(data, arrType, arrSize);
     
     // Prints out starting array for debugging purposes
     for(int i=0; i<arrSize; ++i) {
       cout << data[i] <<", ";
     }
     cout << endl;
+    
+    CALI_MARK_BEGIN("Bitonic Sort");
+    sort_start = MPI_Wtime();
   }
 
-  CALI_MARK_BEGIN("Bitonic Sort");
 
   int local_size = arrSize / num_procs;
   int local_arr[local_size];
@@ -87,18 +69,11 @@ int main(int argc, char* argv[]) {
   
   // Sorting local array - currently done using alg library
   sort(local_arr, local_arr + local_size);
-  // if (procID == 0) {
-  //   cout << "sorted local array: ";
-  //   for (int i=0; i<local_size; ++i) {
-  //     cout << local_arr[i] << ", ";
-  //   }
-  //   cout << endl;
-  // }
 
   int partner_arr[local_size];
   int num_phases = num_procs / 2;
   for (int i=1; i <= num_phases; i *= 2) { // i = first and largest step size of current phase
-    cout << "rank: " << procID << ", i = " << i << endl;
+    // cout << "rank: " << procID << ", i = " << i << endl;
     int procs_per_group = 2 * i;
 
     // determine if local array is ascending or descending
@@ -161,11 +136,14 @@ int main(int argc, char* argv[]) {
 
   MPI_Gather(&local_arr, local_size, MPI_INT, &data, local_size, MPI_INT, 0, MPI_COMM_WORLD);
 
-  CALI_MARK_END("Bitonic Sort");
 
   // print out results to confirm that the array is correctly sorted
   // cout << "Finished sorting" << endl;
   if (procID == 0) {
+    CALI_MARK_END("Bitonic Sort");
+    sort_end = MPI_Wtime();
+    cout << "Sorting time: " << sort_end - sort_start << endl;
+
     bool correct = true;
     for (int i = 0; i < arrSize - 1; i++) {
       // cout << data[i] << ", ";
@@ -180,7 +158,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  mrg.stop();
+  mgr.stop();
   mgr.flush();
 
   MPI_Finalize();
