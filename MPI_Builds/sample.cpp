@@ -13,14 +13,16 @@
 #include <ctime>
 
 using std::vector;
-using std::cout, std::endl;
+using std::cout;
+using std::endl;
 using std::sort;
-using std::accumulate, std::partial_sum;
+using std::accumulate;
+using std::partial_sum;
 
 void printArray(const vector<int>& arr, int rank, const std::string& step) {
     cout  << "Rank" << rank << " " << step << ": ";
     for (int elem : arr) {
-        cout << num << " ";
+        cout << elem << " ";
     }
     cout << endl;
 }
@@ -39,7 +41,7 @@ int main(int argc, char** argv) {
 
     // Random array data generation
     if (rank == 0) {
-        std::rand(std::time(0));
+        std::srand(std::time(0));
         mainArr.resize(initSize);
         for (int i = 0; i < initSize; ++i) {
             mainArr[i] = std::rand() % 100;    // Fill array with numbers between 0 and 99
@@ -53,8 +55,8 @@ int main(int argc, char** argv) {
     vector<int> localArr(localSize);
     
     // 1. Scatter chunks of main array to all processes
-    MPI_Scatter(mainArr.data(), localSize, MPI_INT, localArr.data(), localSize, MPI_INT, 0, MPI_COMM);
-    printArray(localArray, rank, "Received chunk");
+    MPI_Scatter(mainArr.data(), localSize, MPI_INT, localArr.data(), localSize, MPI_INT, 0, MPI_COMM_WORLD);
+    printArray(localArr, rank, "Received chunk");
 
     // 2. Locally sort each chunk
     sort(localArr.begin(), localArr.end());
@@ -74,7 +76,7 @@ int main(int argc, char** argv) {
         }
         sort(samples.begin(), samples.end());
         for (int i = 1; i < num_procs; ++i) {
-            pivots[i - 1] = samples.[i * num_procs / (num_procs + 1)]; //NOTE
+            pivots[i - 1] = samples[i * num_procs / (num_procs + 1)]; //NOTE
         }
     }
     MPI_Bcast(pivots.data(), num_procs - 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -123,13 +125,13 @@ int main(int argc, char** argv) {
     if (rank == 0) {
         finalArr.resize(initSize);
     }
-    MPI_Gather(recvBuffer.data(), recvBuffer.size(), MPI_INT, sortedArray.data(), recvBuffer.size(), MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Gather(recvBuffer.data(), recvBuffer.size(), MPI_INT, finalArr.data(), recvBuffer.size(), MPI_INT, 0, MPI_COMM_WORLD);
 
     CALI_MARK_END("Sample Sort");
 
     if (rank == 0) {
         cout << "Final sorted array: ";
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < initSize; ++i) {
             cout << finalArr[i] << " ";
         }
         cout << endl;
