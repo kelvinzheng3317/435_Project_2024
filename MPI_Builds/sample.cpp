@@ -27,16 +27,16 @@ void printArray(const vector<int>& arr, int rank, const std::string& step) {
     cout << endl;
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char* argv[]) {
     CALI_CXX_MARK_FUNCTION;
 
-    MPI_Init(&argc, &argv);
-
+    int initSize = atoi(argv[1]);
     int rank, num_procs;
+
+    MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
 
-    const int initSize = 16;
     vector<int> mainArr;
 
     // Random array data generation
