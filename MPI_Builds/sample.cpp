@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <numeric>
 
 // For data generation or randomized array
 #include <cstdlib>
@@ -14,6 +15,7 @@
 using std::vector;
 using std::cout, std::endl;
 using std::sort;
+using std::accumulate, std::partial_sum;
 
 void printArray(const vector<int>& arr, int rank, const std::string& step) {
     cout  << "Rank" << rank << " " << step << ": ";
@@ -84,7 +86,49 @@ int main(int argc, char** argv) {
         buckets[bucket_no].push_back(localArr[i]);
     }
 
-    //
+    // 5. Prepare send and receive buffers for bucket data
+    vector<int> sendCounts(num_procs), recvCounts(num_procs);
+    for (int i = 0; i < num_procs; ++i) {
+        sendCounts[i] = buckets[i].size();
+    }
+    MPI_Alltoall(sendCounts.data(), 1, MPI_INT, recvCounts.data(), 1, MPI_INT, MPI_COMM_WORLD);
 
+    // Calculating displacements for for send/recv
+    vector<int> sendDispls(num_procs), recvDispls(num_procs);
+    partial_sum(sendCounts.begin(), sendCounts.end() - 1, sendDispls.begin() + 1);
+    partial_sum(recvCounts.begin(), recvCounts.end() - 1, recvDispls.begin() + 1);
+
+    // Flatten buckets into single send buffer
+    vector<int> sendBuffer(accumulate(sendCounts.begin(), sendCounts.end(), 0));
+    for (int i = 0; i < num_procs; ++i) {
+        std::copy(buckets[i].begin(), buckets[i].end(), sendBuffer.begin() + sendDispls[i]);
+    }
+
+    // Receive buffer for the redistributed data
+    vector<int> recvBuffer(accumulate(recvCounts.begin(), recvCounts.end(), 0));
+
+    // 6. Redistribute the data to all processes
+    MPI_Alltoallv(sendBuffer.data(), sendCounts.data(), sendDispls.data(), MPI_INT,
+                recvBuffer.data(), recvCounts.data(), recvDispls.data(), MPI_INT, MPI_COMM_WORLD);
+
+    // 7. Sort all received buckets
+    std::sort(recvBuffer.begin(), recvBuffer.end());
+
+    // 8. Gather sorted received subarrays (buckets) to MASTER process and print
+    vector<int> finalArr;
+    if (rank == 0) {
+        finalArr.resize(initSize);
+    }
+    MPI_Gather(recvBuffer.data(), recvBuffer.size(), MPI_INT, sortedArray.data(), recvBuffer.size(), MPI_INT, 0, MPI_COMM_WORLD);
+
+    if (rank == 0) {
+        cout << "Final sorted array: ";
+        for (int i = 0; i < N; ++i) {
+            cout << finalArr[i] << " ";
+        }
+        cout << endl;
+    }
+
+    MPI_Finalize();
     return 0;
 }
