@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <iterator>
 
-#include "sort.cpp"
+#include "data.cpp"
 
 using namespace std;
 
