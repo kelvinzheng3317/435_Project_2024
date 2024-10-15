@@ -14,14 +14,9 @@
 
 #include "sort.cpp"
 
-using std::vector;
-using std::cout;
-using std::endl;
-using std::sort;
-using std::accumulate;
-using std::partial_sum;
+using namespace std;
 
-void printArray(const vector<int>& arr, int rank, const std::string& step) {
+void printArray(const vector<int>& arr, int rank, const string& step) {
     cout  << "Rank" << rank << " " << step << ": ";
     for (int elem : arr) {
         cout << elem << " ";
@@ -32,7 +27,7 @@ void printArray(const vector<int>& arr, int rank, const std::string& step) {
 int main(int argc, char* argv[]) {
     CALI_CXX_MARK_FUNCTION;
 
-    int initSize = 16;
+    int initSize = 64;
     string arrType = "random"; // sorted, perturbed, random, reverse
     string sortType = "sample"; // bitonic, merge, sample, radix
 
@@ -43,6 +38,7 @@ int main(int argc, char* argv[]) {
 
     cali::ConfigManager mgr;
     mgr.start();
+    
     double sort_start, sort_end;
 
     int rank, num_procs;
@@ -55,21 +51,22 @@ int main(int argc, char* argv[]) {
 
     // Random array data generation
     // if (rank == 0) {
-    //     std::srand(std::time(0));
+    //     srand(time(0));
     //     mainArr.resize(initSize);
     //     for (int i = 0; i < initSize; ++i) {
-    //         mainArr[i] = std::rand() % 100;    // Fill array with numbers between 0 and 99
+    //         mainArr[i] = rand() % 100;    // Fill array with numbers between 0 and 99
     //     }
     //     printArray(mainArr, rank, "Initial Array");
     // }
     
     if (rank == 0) {
-        generateArray(mainArr, arrType, arrSize);
+        mainArr.resize(initSize);
+        generateArray(mainArr.data(), arrType, arrSize);
         printArray(mainArr, rank, "Initial Array");
+
+        CALI_MARK_BEGIN("Sample Sort");
+        sort_start = MPI_Wtime();
     }
-
-
-    CALI_MARK_BEGIN("Sample Sort");
 
     int localSize = initSize / num_procs;
     vector<int> localArr(localSize);
@@ -127,7 +124,7 @@ int main(int argc, char* argv[]) {
     // Flatten buckets into single send buffer
     vector<int> sendBuffer(accumulate(sendCounts.begin(), sendCounts.end(), 0));
     for (int i = 0; i < num_procs; ++i) {
-        std::copy(buckets[i].begin(), buckets[i].end(), sendBuffer.begin() + sendDispls[i]);
+        copy(buckets[i].begin(), buckets[i].end(), sendBuffer.begin() + sendDispls[i]);
     }
 
     // Receive buffer for the redistributed data
@@ -138,7 +135,7 @@ int main(int argc, char* argv[]) {
                 recvBuffer.data(), recvCounts.data(), recvDispls.data(), MPI_INT, MPI_COMM_WORLD);
 
     // 7. Sort all received buckets
-    std::sort(recvBuffer.begin(), recvBuffer.end());
+    sort(recvBuffer.begin(), recvBuffer.end());
 
     // 8. Gather sorted received subarrays (buckets) to MASTER process and print
     vector<int> finalArr;
@@ -147,14 +144,16 @@ int main(int argc, char* argv[]) {
     }
     MPI_Gather(recvBuffer.data(), recvBuffer.size(), MPI_INT, finalArr.data(), recvBuffer.size(), MPI_INT, 0, MPI_COMM_WORLD);
 
-    CALI_MARK_END("Sample Sort");
-
     if (rank == 0) {
+        sort_end = MPI_Wtime();
+        CALI_MARK_END("Sample Sort");
+
         cout << "Final sorted array: ";
         for (int i = 0; i < initSize; ++i) {
             cout << finalArr[i] << " ";
         }
         cout << endl;
+        cout  << "Total sorting time: " << sort_end - sort_start << "secs" << endl;
     }
 
     MPI_Finalize();
