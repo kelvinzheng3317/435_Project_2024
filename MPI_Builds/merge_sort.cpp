@@ -20,6 +20,7 @@ using namespace std;
  * @param recv_data the received data
  */
 void mergeVectors(vector<int>& local_data, const vector<int>& recv_data) {
+    CALI_CXX_MARK_FUNCTION;
     vector<int> temp(local_data.size() + recv_data.size());
     std::merge(local_data.begin(), local_data.end(), recv_data.begin(), recv_data.end(), temp.begin());
     local_data = move(temp);
@@ -33,6 +34,7 @@ void mergeVectors(vector<int>& local_data, const vector<int>& recv_data) {
  * @param right the right index
  */
 void mergeSort(vector<int>& data, int left, int right) {
+    CALI_CXX_MARK_FUNCTION;
     if (left < right) {
         int mid = left + (right - left) / 2;
         mergeSort(data, left, mid);
@@ -45,7 +47,9 @@ void mergeSort(vector<int>& data, int left, int right) {
     }
 }
 
+
 int main(int argc, char* argv[]){
+    CALI_CXX_MARK_FUNCTION;
 
     int arraySize = 64; // default array size
     string arrType = "sorted"; // default array type
@@ -57,12 +61,16 @@ int main(int argc, char* argv[]){
         arrType = argv[2];
     }
 
+    cali::ConfigManager manager;
+    MPI_Init(&argc, &argv);
+    manager.start();
+
     double sort_start, sort_end;
 
     int processID;
     int numProcesses;
 
-    MPI_Init(&argc, &argv);
+    
     MPI_Comm_rank(MPI_COMM_WORLD, &processID);
     MPI_Comm_size(MPI_COMM_WORLD, &numProcesses);
 
@@ -73,6 +81,7 @@ int main(int argc, char* argv[]){
         data.resize(arraySize);
         generateArray(data.data(), arrType, arraySize);
 
+        CALI_MARK_BEGIN("Merge Sort");
         sort_start = MPI_Wtime();
     }
 
@@ -100,7 +109,9 @@ int main(int argc, char* argv[]){
         MPI_Recv(&localData[0], localSize, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     }
 
+    CALI_MARK_BEGIN("Local Merge Sort");
     mergeSort(localData, 0, localSize - 1);
+    CALI_MARK_END("Local Merge Sort");
 
     if (processID == 0) {
         // Master process collects sorted subarrays from workers
@@ -120,6 +131,7 @@ int main(int argc, char* argv[]){
         }
 
         sort_end = MPI_Wtime();
+        CALI_MARK_END("Merge Sort");
         cout << "Sorting time: " << sort_end - sort_start << " seconds" << endl;
 
         // Verify that the array is correctly sorted
@@ -136,6 +148,9 @@ int main(int argc, char* argv[]){
         MPI_Send(&sendSize, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
         MPI_Send(&localData[0], sendSize, MPI_INT, 0, 0, MPI_COMM_WORLD);
     }
+
+    manager.stop();
+    manager.flush();
 
     MPI_Finalize();
     return 0;
