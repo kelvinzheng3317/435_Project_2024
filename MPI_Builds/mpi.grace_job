@@ -19,6 +19,7 @@
 #
 array_size=$1
 array_type=$2
+sort_alg=$3
 processes=$4
 
 module load intel/2020b       # load Intel software stack
@@ -27,4 +28,4 @@ module load GCCcore/8.3.0
 
 CALI_CONFIG="spot(output=p${processes}-a${array_size}-t${array_type}.cali, \
     time.variance,profile.mpi)" \
-mpirun -np $processes ./bitonic $array_size $array_type
+mpirun -np $processes $sort_alg $array_size $array_type
