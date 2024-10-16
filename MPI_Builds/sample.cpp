@@ -12,7 +12,7 @@
 #include <cstdlib>
 #include <ctime>
 
-#include "sort.cpp"
+#include "data.cpp"
 
 using namespace std;
 
@@ -48,16 +48,6 @@ int main(int argc, char* argv[]) {
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
 
     vector<int> mainArr;
-
-    // Random array data generation
-    // if (rank == 0) {
-    //     srand(time(0));
-    //     mainArr.resize(initSize);
-    //     for (int i = 0; i < initSize; ++i) {
-    //         mainArr[i] = rand() % 100;    // Fill array with numbers between 0 and 99
-    //     }
-    //     printArray(mainArr, rank, "Initial Array");
-    // }
     
     if (rank == 0) {
         mainArr.resize(initSize);
@@ -73,11 +63,11 @@ int main(int argc, char* argv[]) {
     
     // 1. Scatter chunks of main array to all processes
     MPI_Scatter(mainArr.data(), localSize, MPI_INT, localArr.data(), localSize, MPI_INT, 0, MPI_COMM_WORLD);
-    printArray(localArr, rank, "Received chunk");
+    //printArray(localArr, rank, "Received chunk");
 
     // 2. Locally sort each chunk
     sort(localArr.begin(), localArr.end());
-    printArray(localArr, rank, "Local Sorted Chunk");
+    //printArray(localArr, rank, "Local Sorted Chunk");
 
     
     // 3. Select pivots
@@ -97,7 +87,7 @@ int main(int argc, char* argv[]) {
         }
     }
     MPI_Bcast(pivots.data(), num_procs - 1, MPI_INT, 0, MPI_COMM_WORLD);
-    printArray(pivots, rank, "Pivots");
+    //printArray(pivots, rank, "Pivots");
 
     // 4. Bucketing based on pivots
     vector<vector<int>> buckets(num_procs);
