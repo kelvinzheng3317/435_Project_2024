@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
     
     if (rank == 0) {
         mainArr.resize(initSize);
-        generateArray(mainArr.data(), arrType, arrSize);
+        generateArray(mainArr.data(), arrType, initSize);
         printArray(mainArr, rank, "Initial Array");
 
         CALI_MARK_BEGIN("Sample Sort");
