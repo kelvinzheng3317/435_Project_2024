@@ -51,6 +51,17 @@ void mergeSort(vector<int>& data, int left, int right) {
 int main(int argc, char* argv[]){
     CALI_CXX_MARK_FUNCTION;
 
+    // metadata
+    adiak::init(NULL);
+    string algorithm = "merge";
+    string programming_model = "mpi";
+    string data_type = "int";
+    int size_of_data_type = sizeof(int);
+    int num_procs;
+    string scalability = "strong"; // change this as needed
+    int group_number = 19; // adjust based on your group
+    string implementation_source = "handwritten";
+
     int arraySize = 64; // default array size
     string arrType = "sorted"; // default array type
     string sortType = "merge"; // default sort type (bitonic, merge, sample, radix)
@@ -70,22 +81,45 @@ int main(int argc, char* argv[]){
     int processID;
     int numProcesses;
 
-    
     MPI_Comm_rank(MPI_COMM_WORLD, &processID);
     MPI_Comm_size(MPI_COMM_WORLD, &numProcesses);
+
+    num_procs = numProcesses; // Assign the correct number of processes
+
+    // Collect
+    adiak::launchdate();    // launch date of the job
+    adiak::libraries();     // Libraries used
+    adiak::cmdline();       // Command line used to launch the job
+    adiak::clustername();   // Name of the cluster
+    adiak::value("algorithm", algorithm); // The name of the algorithm you are using (e.g., "merge", "bitonic")
+    adiak::value("programming_model", programming_model); // e.g. "mpi"
+    adiak::value("data_type", data_type); // The datatype of input elements (e.g., double, int, float)
+    adiak::value("size_of_data_type", size_of_data_type); // sizeof(datatype) of input elements in bytes (e.g., 1, 2, 4)
+    adiak::value("input_size", arraySize); // The number of elements in input dataset (1000)
+    adiak::value("input_type", arrType); // For sorting, this would be choices: ("Sorted", "ReverseSorted", "Random", "1_perc_perturbed")
+    adiak::value("num_procs", num_procs); // The number of processors (MPI ranks)
+    adiak::value("scalability", scalability); // The scalability of your algorithm. choices: ("strong", "weak")
+    adiak::value("group_num", group_number); // The number of your group (integer, e.g., 1, 10)
+    adiak::value("implementation_source", implementation_source); // Where you got the source code of your algorithm. choices: ("online", "ai", "handwritten").
 
     vector<int> data;
 
     // main process
     if(processID == 0){
+        CALI_MARK_BEGIN("data_init_runtime");
         data.resize(arraySize);
         generateArray(data.data(), arrType, arraySize);
+        CALI_MARK_END("data_init_runtime");
+    }
 
-        CALI_MARK_BEGIN("Merge Sort");
+    // Begin Merge sort timing
+    if(processID == 0){
         sort_start = MPI_Wtime();
     }
 
     // distribute data to all processes
+    CALI_MARK_BEGIN("comm");
+    CALI_MARK_BEGIN("comm_small");
     int baseSize = arraySize / numProcesses;
     int remainder = arraySize % numProcesses;
     int localSize = baseSize + (processID < remainder ? 1 : 0);
@@ -108,15 +142,21 @@ int main(int argc, char* argv[]){
         // receiving end
         MPI_Recv(&localData[0], localSize, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     }
+    CALI_MARK_END("comm_small");
+    CALI_MARK_END("comm");
 
-    CALI_MARK_BEGIN("Local Merge Sort");
+    CALI_MARK_BEGIN("comp");
+    CALI_MARK_BEGIN("comp_large");
     mergeSort(localData, 0, localSize - 1);
-    CALI_MARK_END("Local Merge Sort");
+    CALI_MARK_END("comp_large");
+    CALI_MARK_END("comp");
 
     if (processID == 0) {
+        CALI_MARK_BEGIN("comm");
         // Master process collects sorted subarrays from workers
         vector<int> sortedData = localData;
         for (int i = 1; i < numProcesses; i++) {
+            CALI_MARK_BEGIN("comm_large");
             // Receive the size of the sorted subarray
             int recvSize;
             MPI_Status status;
@@ -127,13 +167,20 @@ int main(int argc, char* argv[]){
             MPI_Recv(&recvData[0], recvSize, MPI_INT, i, 0, MPI_COMM_WORLD, &status);
 
             // Merge the received subarray with the main sorted data
+            CALI_MARK_BEGIN("comp");
+            CALI_MARK_BEGIN("comp_small");
             mergeVectors(sortedData, recvData);
+            CALI_MARK_END("comp_small");
+            CALI_MARK_END("comp");
+
+            CALI_MARK_END("comm_large");
         }
+        CALI_MARK_END("comm");
 
         sort_end = MPI_Wtime();
-        CALI_MARK_END("Merge Sort");
-        cout << "Sorting time: " << sort_end - sort_start << " seconds" << endl;
 
+        CALI_MARK_BEGIN("correctness_check");
+        cout << "Sorting time: " << sort_end - sort_start << " seconds" << endl;
         // Verify that the array is correctly sorted
         bool correct = is_sorted(sortedData.begin(), sortedData.end());
         if (correct) {
@@ -141,6 +188,7 @@ int main(int argc, char* argv[]){
         } else {
             cout << "Array is not correctly sorted" << endl;
         }
+        CALI_MARK_END("correctness_check");
 
     } else {
         // Worker processes send their sorted subarrays back to the master
