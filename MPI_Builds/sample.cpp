@@ -127,7 +127,8 @@ int main(int argc, char* argv[]) {
     if (rank == 0) {
         finalArr.resize(initSize);
     }
-    MPI_Gatherv(recvBuffer.data(), recvBuffer.size(), MPI_INT, finalArr.data(), recvBuffer.size(), MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Gatherv(recvBuffer.data(), recvBuffer.size(), MPI_INT, finalArr.data(), recvCounts.data(), recvDispls.data(), MPI_INT, 0, MPI_COMM_WORLD);
+
 
     if (rank == 0) {
         sort_end = MPI_Wtime();
