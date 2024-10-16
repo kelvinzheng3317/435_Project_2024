@@ -22,12 +22,10 @@ array_type=$2
 sort_alg=$3
 processes=$4
 
-alg_name=$(basename $sort_alg)
-
 module load intel/2020b       # load Intel software stack
 module load CMake/3.12.1
 module load GCCcore/8.3.0
 
-CALI_CONFIG="spot(output=${alg_name}-p${processes}-a${array_size}-t${array_type}.cali, \
+CALI_CONFIG="spot(output=p${processes}-a${array_size}-t${array_type}-${sort_alg}.cali, \
     time.variance,profile.mpi)" \
-mpirun -np $processes $sort_alg $array_size $array_type
+mpirun -np $processes ./$sort_alg $array_size $array_type
