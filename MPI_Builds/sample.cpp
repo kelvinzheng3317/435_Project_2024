@@ -25,13 +25,13 @@ int main(int argc, char* argv[]) {
     CALI_CXX_MARK_FUNCTION;
 
     const char* main = "main";
-    const char* data_init_runtime = "data_init_runtime"
+    const char* data_init_runtime = "data_init_runtime";
     const char* comm = "comm";
     const char* comm_small = "comm_small";
     const char* comm_large = "comm_large";
-    const char* comm = "comp";
-    const char* comm_small = "comp_small";
-    const char* comm_large = "comp_large";
+    const char* comp = "comp";
+    const char* comp_small = "comp_small";
+    const char* comp_large = "comp_large";
     const char* correctness_check = "correctness_check";
 
     cali::ConfigManager mgr;
@@ -201,7 +201,6 @@ int main(int argc, char* argv[]) {
     CALI_MARK_END(comm);
 
     // Calculate displacements for final receive buffers
-    CALI_MARK_BEGIN
     vector<int> finalRecvDispls(num_procs);
     if (rank == 0) {
         finalRecvDispls[0] = 0;
