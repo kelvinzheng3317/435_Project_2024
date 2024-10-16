@@ -8,13 +8,22 @@
 
 using namespace std;
 
-// Function to print array
-void printArray(const vector<int>& arr, int rank, const string& step) {
-    cout << "Rank " << rank << " - " << step << ": ";
-    for (int elem : arr) {
-        cout << elem << " ";
+// // Function to print array
+// void printArray(const vector<int>& arr, int rank, const string& step) {
+//     cout << "Rank " << rank << " - " << step << ": ";
+//     for (int elem : arr) {
+//         cout << elem << " ";
+//     }
+//     cout << endl;
+// }
+
+bool isSorted(const vector<int>& arr) {
+    for (size_t i = 1; i < arr.size(); ++i) {
+        if (arr[i] < arr[i - 1]) {
+            return false;
+        }
     }
-    cout << endl;
+    return true;
 }
 
 int main(int argc, char* argv[]) {
@@ -38,7 +47,7 @@ int main(int argc, char* argv[]) {
     if (rank == 0) {
         mainArr.resize(initSize);
         generateArray(mainArr.data(), arrType, initSize);
-        printArray(mainArr, rank, "Initial Array");
+        cout << "Sample sort: Array size = " << initSize << " | Array type = " << arrType << " | Num. processors = " << num_procs << endl; 
     }
 
     int localSize = initSize / num_procs;
@@ -79,12 +88,7 @@ int main(int argc, char* argv[]) {
         buckets[bucket_no].push_back(localArr[i]);
     }
 
-    for (int i = 0; i < num_procs; ++i) {
-        printArray(buckets[i], rank, "Bucket " + to_string(i));
-    }
-
     // 5. Calculate necessary values for send/recv buffers
-
     // Calculate counts of elements for sending buffer from each bucket
     vector<int> sendCounts(num_procs);
     for (int i = 0; i < num_procs; ++i) {
@@ -104,8 +108,6 @@ int main(int argc, char* argv[]) {
         copy(buckets[i].begin(), buckets[i].end(), sendBuffer.begin() + sendDispls[i]);
     }
 
-    printArray(sendBuffer, rank, "Send Buffer");
-
     // Calculate counts of elements received for receive buffer 
     vector<int> recvCounts(num_procs);
     MPI_Alltoall(sendCounts.data(), 1, MPI_INT, recvCounts.data(), 1, MPI_INT, MPI_COMM_WORLD);
@@ -120,19 +122,9 @@ int main(int argc, char* argv[]) {
     // Prepare receive receive buffer
     vector<int> recvBuffer(accumulate(recvCounts.begin(), recvCounts.end(), 0));
 
-    if (rank == 0) {
-        cout << "Rank " << rank << " - recvCounts: ";
-        for (int count : recvCounts) {
-            cout << count << " ";
-        }
-        cout << endl;
-    }
-
     // Exchange send/recv data between all processes
     MPI_Alltoallv(sendBuffer.data(), sendCounts.data(), sendDispls.data(), MPI_INT,
                    recvBuffer.data(), recvCounts.data(), recvDispls.data(), MPI_INT, MPI_COMM_WORLD);
-
-    printArray(recvBuffer, rank, "Received Buffer after Alltoallv");
 
     // Sort receive buffer locally
     sort(recvBuffer.begin(), recvBuffer.end());
@@ -158,12 +150,12 @@ int main(int argc, char* argv[]) {
     MPI_Gatherv(recvBuffer.data(), recvBuffer.size(), MPI_INT, finalArr.data(), finalRecvCounts.data(), finalRecvDispls.data(), MPI_INT, 0, MPI_COMM_WORLD);
 
     if (rank == 0) {
-        printArray(finalArr, rank, "Final Array Before Sorting Output");
-        cout << "Final sorted array: ";
-        for (int i = 0; i < initSize; ++i) {
-            cout << finalArr[i] << " ";
+        bool sorted = isSorted(finalArr);
+        if (sorted) {
+            cout << "Final array is sorted.";
+        } else {
+            cout << "Sorted failed: final array not sorted.";
         }
-        cout << endl;
     }
 
     MPI_Finalize();
