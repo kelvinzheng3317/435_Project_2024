@@ -72,7 +72,10 @@ int main(int argc, char* argv[]) {
 
   if (procID == 0) {
     // FOR DEBUGGING
+    cout << "Bitonic sort" << endl;
     cout << "number of processes: " << num_procs << endl;
+    cout << "array size: " << arrSize << endl;
+    cout << "array type: " << arrType << endl;
     // for (int i=0; i<argc; ++i) {
     //   cout << "arg " << i << " : " << argv[i] << endl;
     // }
