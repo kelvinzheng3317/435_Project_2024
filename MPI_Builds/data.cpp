@@ -8,13 +8,13 @@ void generateArray(int* data, string arrType, int arrSize) {
       data[i] = i;
     }
   } else if (arrType == "perturbed") {
-    // should it be exactly 1% of the data or is approximately 1% good enough?
+    // generated sorted array
     for (int i=0; i<arrSize; ++i) {
-      if (rand() % 100 == 1) {
-        data[i] = rand();
-      } else {
-        data[i] = i;
-      }
+      data[i] = i;
+    }
+    // perturbed 1% of the array
+    for (int i=0; i<arrSize / 100; ++i) {
+      data[rand() % arrSize] = rand();
     }
   } else if (arrType == "random")
   {
