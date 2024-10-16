@@ -73,9 +73,9 @@ int main(int argc, char* argv[]) {
   if (procID == 0) {
     // FOR DEBUGGING
     cout << "number of processes: " << num_procs << endl;
-    for (int i=0; i<argc; ++i) {
-      cout << "arg " << i << " : " << argv[i] << endl;
-    }
+    // for (int i=0; i<argc; ++i) {
+    //   cout << "arg " << i << " : " << argv[i] << endl;
+    // }
     
     CALI_MARK_BEGIN(data_init_runtime);
     generateArray(data, arrType, arrSize);
@@ -136,7 +136,7 @@ int main(int argc, char* argv[]) {
       CALI_MARK_END(comp_small);
         
       // MPI_Sendrecv to send array1 to partner and put partner’s data in array2
-      CALI_MARK_END(comm);
+      CALI_MARK_BEGIN(comm);
       CALI_MARK_BEGIN(comm_small);
       MPI_Sendrecv(&local_arr, local_size, MPI_INT, partner_rank, 0, partner_arr, local_size, MPI_INT, partner_rank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
       CALI_MARK_END(comm_small);
@@ -210,7 +210,7 @@ int main(int argc, char* argv[]) {
     if (correct) {
       cout << "\n Array is correctly sorted" << endl;
     }
-    CALI_MARK_END(correctness_check)
+    CALI_MARK_END(correctness_check);
   }
 
   CALI_MARK_END(main);
