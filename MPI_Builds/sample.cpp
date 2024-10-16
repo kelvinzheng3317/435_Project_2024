@@ -17,7 +17,7 @@
 using namespace std;
 
 void printArray(const vector<int>& arr, int rank, const string& step) {
-    cout  << "Rank" << rank << " " << step << ": ";
+    cout  << "Rank " << rank << " - " << step << ": ";
     for (int elem : arr) {
         cout << elem << " ";
     }
@@ -63,15 +63,11 @@ int main(int argc, char* argv[]) {
     
     // 1. Scatter chunks of main array to all processes
     MPI_Scatter(mainArr.data(), localSize, MPI_INT, localArr.data(), localSize, MPI_INT, 0, MPI_COMM_WORLD);
-    //printArray(localArr, rank, "Received chunk");
 
     // 2. Locally sort each chunk
     sort(localArr.begin(), localArr.end());
-    //printArray(localArr, rank, "Local Sorted Chunk");
-
     
     // 3. Select pivots
-    
     /* NOTE: samples.[i * num_procs / (num_procs + 1)] can be changed to get different set of samples.
     Chose [i * num_procs / (num_procs + 1)] for evenlt distributed selection. */
 
@@ -87,7 +83,6 @@ int main(int argc, char* argv[]) {
         }
     }
     MPI_Bcast(pivots.data(), num_procs - 1, MPI_INT, 0, MPI_COMM_WORLD);
-    //printArray(pivots, rank, "Pivots");
 
     // 4. Bucketing based on pivots
     vector<vector<int>> buckets(num_procs);
