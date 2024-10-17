@@ -36,7 +36,8 @@ Team Communication Method: Discord
 #### Source code Descriptions
 - Bitonic Sort
 - Sample Sort
-- Merge Sort
+- Merge Sort:
+    The implementation of the Merge sort algorithm utilizes MPI to parallelize the sorting process across multiple processors. The general idea here is to divide the input array into the number of processors being used, sort each subarray in parallel and merge them back together at the end. The code initially starts with initializing MPI, setting up the number of processors and identify the ranking of each processor- the master process is responsible for distributing the data, collecting the sort arrays and merging them together. After initializing MPI, it generates the data from "data.cpp" based on the parameters from the mpi.grace_job script. Afterwards, the master process will divide the array into chunks (based on the number of paramters) and distribute them to each worker using `MPI_Send`. On the other hand, the worker will receive the data with `MPI_Recv`. After the worker threads get their own subarrays, it will then do a local sort within that subarray using the merge sort algorithm. Then, it will send the sorted subarray back to the master, where the master will collect them, and use the `mergeVectors()` function to merge the sorted arrays to ultimately have a fully sorted array. This is then checked through the correctness process, where it will check whether the algorithm has successfully sorted the array. Finally, the program calls MPI_Finalize to clean up MPI and terminate the parallel program.
 - Radix Sort
 
 ### 2b. Pseudocode for each parallel algorithm
