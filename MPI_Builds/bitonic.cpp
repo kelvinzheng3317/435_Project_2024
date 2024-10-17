@@ -72,10 +72,10 @@ int main(int argc, char* argv[]) {
 
   if (procID == 0) {
     // FOR DEBUGGING
-    cout << "Bitonic sort" << endl;
-    cout << "number of processes: " << num_procs << endl;
-    cout << "array size: " << arrSize << endl;
-    cout << "array type: " << arrType << endl;
+    // cout << "Bitonic sort" << endl;
+    // cout << "number of processes: " << num_procs << endl;
+    // cout << "array size: " << arrSize << endl;
+    // cout << "array type: " << arrType << endl;
     // for (int i=0; i<argc; ++i) {
     //   cout << "arg " << i << " : " << argv[i] << endl;
     // }
@@ -89,8 +89,6 @@ int main(int argc, char* argv[]) {
     //   cout << data[i] <<", ";
     // }
     // cout << endl;
-    
-    sort_start = MPI_Wtime();
   }
 
 
@@ -197,8 +195,6 @@ int main(int argc, char* argv[]) {
   // print out results to confirm that the array is correctly sorted
   // cout << "Finished sorting" << endl;
   if (procID == 0) {
-    sort_end = MPI_Wtime();
-    cout << "Sorting time: " << sort_end - sort_start << endl;
 
     CALI_MARK_BEGIN(correctness_check);
     bool correct = true;
