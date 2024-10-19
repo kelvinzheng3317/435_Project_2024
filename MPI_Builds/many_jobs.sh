@@ -1,12 +1,9 @@
 #!/bin/bash
 
 # Define the parameter ranges
-# input_sizes=(65536 262144 1048576 4194304 16777216 67108864 268435456)  # 2^16, 2^18, ..., 2^28
-input_sizes=(64 128)
-# input_types=("sorted" "random" "reverse" "perturbed")
+input_sizes=(65536 262144 1048576 4194304 16777216 67108864 268435456)  # 2^16, 2^18, ..., 2^28
 input_types=("sorted" "random" "reverse" "perturbed")
-# num_procs=(2 4 8 16 32 64 128 256 512 1024)
-num_procs=(32 64)
+num_procs=(2 4 8 16 32 64 128 256 512 1024)
 
 # Define the sorting algorithm (can be replaced if needed)
 sort_alg="bitonic"  # Replace with the actual sorting algorithm executable
