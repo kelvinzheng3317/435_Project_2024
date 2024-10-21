@@ -104,21 +104,26 @@ int main(int argc, char* argv[]) {
     - samples.[i * num_procs / (num_procs + 1)] can be changed to get different set of samples.
     - Chose [i * num_procs / (num_procs + 1)] for evenly distributed selection. */
 
-    CALI_MARK_BEGIN(comp);
     vector<int> pivots(num_procs - 1);
     if (rank == 0) {
         vector<int> samples(num_procs);
+
+        CALI_MARK_BEGIN(comp);
+        CALI_MARK_BEGIN(comp_large);
         for (int i = 0; i < num_procs; ++i) {
             samples[i] = mainArr[i * (initSize / num_procs)];
         }
+
         CALI_MARK_BEGIN(comp_small);
         sort(samples.begin(), samples.end());
         CALI_MARK_END(comp_small);
+
         for (int i = 1; i < num_procs; ++i) {
             pivots[i - 1] = samples[i * num_procs / (num_procs + 1)];   //NOTE
         }
+        CALI_MARK_END(comp_large);
+        CALI_MARK_END(comp);
     }
-    CALI_MARK_END(comp);
 
     CALI_MARK_BEGIN(comm);
     CALI_MARK_BEGIN(comm_small);
@@ -146,9 +151,14 @@ int main(int argc, char* argv[]) {
     // Calculate displacement for sending buffer
     vector<int> sendDispls(num_procs);
     sendDispls[0] = 0;
+
+    CALI_MARK_BEGIN(comp);
+    CALI_MARK_BEGIN(comp_small);
     for (int i = 1; i < num_procs; ++i) {
         sendDispls[i] = sendDispls[i - 1] + sendCounts[i - 1];
     }
+    CALI_MARK_END(comp_small);
+    CALI_MARK_END(comp);
 
     // Prepare send buffer
     vector<int> sendBuff(accumulate(sendCounts.begin(), sendCounts.end(), 0));
@@ -167,9 +177,14 @@ int main(int argc, char* argv[]) {
     // Calculate disolacement for receive buffer
     vector<int> recvDispls(num_procs);
     recvDispls[0] = 0;
+
+    CALI_MARK_BEGIN(comp);
+    CALI_MARK_BEGIN(comp_small);
     for (int i = 1; i < num_procs; ++i) {
         recvDispls[i] = recvDispls[i - 1] + recvCounts[i - 1];
     }
+    CALI_MARK_END(comp_small);
+    CALI_MARK_END(comp);
 
     // Prepare receive receive buffer
     vector<int> recvBuff(accumulate(recvCounts.begin(), recvCounts.end(), 0));
@@ -204,9 +219,14 @@ int main(int argc, char* argv[]) {
     vector<int> finalRecvDispls(num_procs);
     if (rank == 0) {
         finalRecvDispls[0] = 0;
+
+        CALI_MARK_BEGIN(comp);
+        CALI_MARK_BEGIN(comp_small);
         for (int i = 1; i < num_procs; ++i) {
             finalRecvDispls[i] = finalRecvDispls[i - 1] + finalRecvCounts[i - 1];
         }
+        CALI_MARK_END(comp_small);
+        CALI_MARK_END(comp);
     }
 
     // 6. Gather all sorted received buffers into final array
