@@ -9,7 +9,7 @@
 #include <caliper/cali-manager.h>
 #include <adiak.hpp>
 
-#include "sort.cpp" 
+#include "data.cpp" 
 
 using namespace std;
 
