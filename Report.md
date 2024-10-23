@@ -417,28 +417,28 @@ For merge sort, you can see that the array size of 65536, it starts with an upwa
 
 - Sample Sort:
 For Sample Sort we can see that for all input sizes, the total time for main has a increasing trend. This makes sense as the increasing input size will increase the time for both communication MPI calls and computation for calculating and sorting bucketes will increase.
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_Total-time_main_65536.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_Total-time_main_262144.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_Total-time_main_1048576.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_Total-time_main_4194304.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_Total-time_main_16777216.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_Total-time_main_67108864.png)
+![Sample Plot](graphs/Sample_Total-time_main_65536.png)
+![Sample Plot](graphs/Sample_Total-time_main_262144.png)
+![Sample Plot](graphs/Sample_Total-time_main_1048576.png)
+![Sample Plot](graphs/Sample_Total-time_main_4194304.png)
+![Sample Plot](hgraphs/Sample_Total-time_main_16777216.png)
+![Sample Plot](graphs/Sample_Total-time_main_67108864.png)
 
 For Sample Sort, we can see from the graphs that the variance in runtime for main between different processes only have a large difference for the largest number of processes, 1024. This does make logical sense because the more processes you have the greater the chance for processes to get buckets that range greatly in the how much they need to be sorted. Furthermore, the more bucekts there are the more chance of processes getting bucket that are empty depending on the spread of the elements in the array from the pivot values determined.
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_variance_main_65536.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_variance_main_262144.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_variance_main_1048576.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_variance_main_4194304.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_variance_main_16777216.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_variance_main_67108864.png)
+![Sample Plot](graphs/Sample_variance_main_65536.png)
+![Sample Plot](graphs/Sample_variance_main_262144.png)
+![Sample Plot](graphs/Sample_variance_main_1048576.png)
+![Sample Plot](graphs/Sample_variance_main_4194304.png)
+![Sample Plot](graphs/Sample_variance_main_16777216.png)
+![Sample Plot](graphs/Sample_variance_main_67108864.png)
 
 For Sample Sort, from the plots we can see that the min, max, and avg runtimes of "main" on processes are similar in trend for set input sizes. For smaller arrays, the runtime increases as the number of processes increase while larger input sizes see an exponential decay in runtime as the number of processes increase. This can be attributed to communication costs outweighing computation costs at lower input sizes but as the input size grows, the benefits of parallelizing computation across multiple processes cause the communication overhead to not have as large of an impact on the overall runtime compared to the computation.
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_min_main_65536.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_max_main_65536.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_avg_main_65536.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_min_main_67108864.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_max_main_67108864.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_avg_main_67108864.png)
+![Sample Plot](graphs/Sample_min_main_65536.png)
+![Sample Plot](graphs/Sample_max_main_65536.png)
+![Sample Plot](graphs/Sample_avg_main_65536.png)
+![Sample Plot](graphs/Sample_min_main_67108864.png)
+![Sample Plot](graphs/Sample_max_main_67108864.png)
+![Sample Plot](graphs/Sample_avg_main_67108864.png)
 
 > [!IMPORTANT]  
 > The full results of Merge, Sample and Bitonic sort are in the "graphs" directory in the repository.
