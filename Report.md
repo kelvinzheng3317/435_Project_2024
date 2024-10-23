@@ -268,7 +268,14 @@ CALI_MARK_END("comp");
    │  └─ 0.000 comp_small
    ├─ 0.003 correctness_check
    └─ 0.023 data_init_runtime
-``` 
+```
+- Bitonic Sort
+- Sample Sort
+- Merge Sort:
+  
+![alt text](graphs/Merge_thicket.png)
+
+      
 
 ### 3b. Collect Metadata
 
