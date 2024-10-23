@@ -331,7 +331,6 @@ perform runs that invoke algorithm2 for Sorted, ReverseSorted, and Random data).
     - Total time
     - Variance time/rank
 
-<<<<<<< HEAD
 From the data, we can observe that the total time for main consistently goes up with greater number of processors for Bitonic sort. This is likely because, while Bitonic sort decreases the average time for main, this decrease is offset by the total number of processes and the introduction of more overhead with increased comparison and communication operations. In other words, having more processes will decrease total real life time to complete the sort but increase the amount of compute time needed. 
 ![Sample Plot](graphs/Bitonic_Total-time_main_65536.png)
 ![Sample Plot](graphs/Bitonic_Total-time_main_262144.png)
@@ -341,6 +340,7 @@ From the data, we can observe that the total time for main consistently goes up 
 ![Sample Plot](graphs/Bitonic_Total-time_main_67108864.png)
 ![Sample Plot](graphs/Bitonic_Total-time_main_268435456.png)
 
+For Bitonic sort, the variance time/rank for main graphs follows patterns very similar to average time/rank. This makes sense as the two are affected by similar factors. The general pattern is when considering fixed input sizes, variance increases with increased number of processes for small input sizes while decreasing with increased number of processes for large input sizes. Variance time/rank as a whole increases with larger input sizes. This makes sense as larger inputs means more data and more processing, resulting in more places where computation times can vary.
 ![Sample Plot](graphs/Bitonic_variance_main_65536.png)
 ![Sample Plot](graphs/Bitonic_variance_main_262144.png)
 ![Sample Plot](graphs/Bitonic_variance_main_1048576.png)
@@ -348,7 +348,6 @@ From the data, we can observe that the total time for main consistently goes up 
 ![Sample Plot](graphs/Bitonic_variance_main_16777216.png)
 ![Sample Plot](graphs/Bitonic_variance_main_67108864.png)
 ![Sample Plot](graphs/Bitonic_variance_main_268435456.png)
-=======
 > [!IMPORTANT]  
 > The full results of Merge, Sample and Bitonic sort are in the "graphs" directory in the repository.
 
@@ -388,7 +387,6 @@ The computation itself actually decreases as the processor count increases, indi
 ![alt text](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_comm_16777216.png)
 The increase in MPI communication as you increase the number of processors. In this case, the increase in communication creates a communication overhead where it outweighs the benefits of parallelizing. 
 
->>>>>>> 56484c15e314f89a5abb6ed06a11daaf340298e7
 
 ## 5. Presentation
 Plots for the presentation should be as follows:
