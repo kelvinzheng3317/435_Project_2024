@@ -331,6 +331,22 @@ perform runs that invoke algorithm2 for Sorted, ReverseSorted, and Random data).
     - Total time
     - Variance time/rank
 
+From the data, we can observe that the total time for main consistently goes up with greater number of processors for Bitonic sort. This is likely because, while Bitonic sort decreases the average time for main, this decrease is offset by the total number of processes and the introduction of more overhead with increased comparison and communication operations. In other words, having more processes will decrease total real life time to complete the sort but increase the amount of compute time needed. 
+![Sample Plot](graphs/Bitonic_Total-time_main_65536.png)
+![Sample Plot](graphs/Bitonic_Total-time_main_262144.png)
+![Sample Plot](graphs/Bitonic_Total-time_main_1048576.png)
+![Sample Plot](graphs/Bitonic_Total-time_main_4194304.png)
+![Sample Plot](graphs/Bitonic_Total-time_main_16777216.png)
+![Sample Plot](graphs/Bitonic_Total-time_main_67108864.png)
+![Sample Plot](graphs/Bitonic_Total-time_main_268435456.png)
+
+![Sample Plot](graphs/Bitonic_variance_main_65536.png)
+![Sample Plot](graphs/Bitonic_variance_main_262144.png)
+![Sample Plot](graphs/Bitonic_variance_main_1048576.png)
+![Sample Plot](graphs/Bitonic_variance_main_4194304.png)
+![Sample Plot](graphs/Bitonic_variance_main_16777216.png)
+![Sample Plot](graphs/Bitonic_variance_main_67108864.png)
+![Sample Plot](graphs/Bitonic_variance_main_268435456.png)
 
 ## 5. Presentation
 Plots for the presentation should be as follows:
