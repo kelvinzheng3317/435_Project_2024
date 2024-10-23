@@ -49,118 +49,118 @@ Team Communication Method: Discord
 - For MPI programs, include MPI calls you will use to coordinate between processes
 
 - Sample Sort Pseudocode:
-```
-MPI_Init()
-int rank
-int num_procs
+    ```
+    MPI_Init()
+    int rank
+    int num_procs
 
-procs_elems = length(data) / num_procs   # The number of elements per process
-local_data = empty array of proc_elems
-    
-scatter data to processes using MPI_Scatter(local_data)
-    
-sorted_local = sort(local_data)
+    procs_elems = length(data) / num_procs   # The number of elements per process
+    local_data = empty array of proc_elems
+        
+    scatter data to processes using MPI_Scatter(local_data)
+        
+    sorted_local = sort(local_data)
 
-if rank == 0:    # i.e. MASTER
-    sorted_subarrays = empty array
+    if rank == 0:    # i.e. MASTER
+        sorted_subarrays = empty array
 
-gather sorted local data using MPI_Gather(sorted_local)
+    gather sorted local data using MPI_Gather(sorted_local)
 
-if rank == 0:   # i.e. MASTER
-    final_sorted = merge(sorted_subarrays)
+    if rank == 0:   # i.e. MASTER
+        final_sorted = merge(sorted_subarrays)
 
-MPI_Finalize()
-```
+    MPI_Finalize()
+    ```
 
 - Merge Sort Pseudocode:
-```Initialize MPI
-int processor_rank // the current process id
-int processor_count // total number of processors currently being used
+    ```Initialize MPI
+    int processor_rank // the current process id
+    int processor_count // total number of processors currently being used
 
-if processor_rank == MASTER:
-    Divide the main array into subarrays based on 'processor_count'
-    for each worker:
-        send subarray using MPI_Send
+    if processor_rank == MASTER:
+        Divide the main array into subarrays based on 'processor_count'
+        for each worker:
+            send subarray using MPI_Send
 
-    sortedSubArrays = init empty array
-    for each worker:
-        receive subarray from worker using MPI_Recv 
-        append received subArray into sortedSubArrays
-    
-    finalSortedArray = merge all the sortedSubArrays here
+        sortedSubArrays = init empty array
+        for each worker:
+            receive subarray from worker using MPI_Recv 
+            append received subArray into sortedSubArrays
+        
+        finalSortedArray = merge all the sortedSubArrays here
 
-else: // worker
-    Receive subarray from MASTER using MPI_Recv
-    Sort the subarray using MergeSort
-    Send the sorted array back to MASTER using MPI_Send
+    else: // worker
+        Receive subarray from MASTER using MPI_Recv
+        Sort the subarray using MergeSort
+        Send the sorted array back to MASTER using MPI_Send
 
-Finalize MPI
-```
+    Finalize MPI
+    ```
 
 - Bitonic Sort Pseudocode:
-```plaintext
-Int rank
-Int N // number of processes
-MPI_Init // initialize MPI for communication
-MPI_Comm_rank // get the process rank
-MPI_Comm_size // get the number of processes N
+    ```
+    Int rank
+    Int N // number of processes
+    MPI_Init // initialize MPI for communication
+    MPI_Comm_rank // get the process rank
+    MPI_Comm_size // get the number of processes N
 
-If rank == 0:
-  Initialize int array of size 2^x where x is an integer
-  M = size(array) / N
+    If rank == 0:
+      Initialize int array of size 2^x where x is an integer
+      M = size(array) / N
 
-MPI_Bcast M(the size of local arrays) from rank 0 to all processes
-MPI_Scatter to distribute array data among all processes 
+    MPI_Bcast M(the size of local arrays) from rank 0 to all processes
+    MPI_Scatter to distribute array data among all processes 
 
-array1 = array for local data of process
-sort array1
+    array1 = array for local data of process
+    sort array1
 
-// i = first and largest step size of current phase
-For (int i=1; i <= N/2; i *= 2): 
-  procs_per_group = i * 2
-  Ascending if (rank // procs_per_group) % 2 == 0, descending otherwise
-  For (int step = i; step > 0; step /= 2):
-    if (rank % step) < step / 2:
-      partner_rank = rank + step
-    else:
-      partner_rank = rank - step
-      
-    MPI_Sendrecv to send array1 to partner and put partner’s data in array2
+    // i = first and largest step size of current phase
+    For (int i=1; i <= N/2; i *= 2): 
+      procs_per_group = i * 2
+      Ascending if (rank // procs_per_group) % 2 == 0, descending otherwise
+      For (int step = i; step > 0; step /= 2):
+        if (rank % step) < step / 2:
+          partner_rank = rank + step
+        else:
+          partner_rank = rank - step
+          
+        MPI_Sendrecv to send array1 to partner and put partner’s data in array2
 
-    If (Ascending and rank <  partner_rank) OR (descending and rank > partner_rank):
-      Iterate from left sides of array1 and array2:
-        create a temp array of size m with the smallest values from array1 and array2, sorted in increasing order
-      Set array1 equal to temp
-    Else:
-      Iterate from the right sides of array1 and array2:
-        Create a temp array of size M of the largest values of array1 and array2 in increasing order
-      Set array1 equal to temp
+        If (Ascending and rank <  partner_rank) OR (descending and rank > partner_rank):
+          Iterate from left sides of array1 and array2:
+            create a temp array of size m with the smallest values from array1 and array2, sorted in increasing order
+          Set array1 equal to temp
+        Else:
+          Iterate from the right sides of array1 and array2:
+            Create a temp array of size M of the largest values of array1 and array2 in increasing order
+          Set array1 equal to temp
 
-If rank == 0:
-  Merge together all local arrays from all workers using MPI_gather
-  Print result array
-```
+    If rank == 0:
+      Merge together all local arrays from all workers using MPI_gather
+      Print result array
+    ```
 
 - Radix Sort Psuedocode:
-```
-array full_data
-array global_data
-allocate space for array local_data which holds the portion of the data for each process
-MPI_Init()
-if rank == MASTER:
-    MPI_Scatter(local_data) to split the full_data and send chunks to each process
-else:
-    from least significant bit to most significant bit:
-        Count how many numbers have 0 or 1 in the current bit position
-        for each number in the local_data chunk:
-            Extract the bit at the current position for each number
-        MPI_Allreduce(global_count) to sum up the local counts across all processes
-        MPI_Scan(prefix_sum) to computer prefix_sums and determine where each process should start placing its numbers
+    ```
+    array full_data
+    array global_data
+    allocate space for array local_data which holds the portion of the data for each process
+    MPI_Init()
+    if rank == MASTER:
+        MPI_Scatter(local_data) to split the full_data and send chunks to each process
+    else:
+        from least significant bit to most significant bit:
+            Count how many numbers have 0 or 1 in the current bit position
+            for each number in the local_data chunk:
+                Extract the bit at the current position for each number
+            MPI_Allreduce(global_count) to sum up the local counts across all processes
+            MPI_Scan(prefix_sum) to computer prefix_sums and determine where each process should start placing its numbers
 
-if rank == MASTER:
-    MPI_Gather(global_data) to gather the sorted chunks back to the master process
-MPI_Finalize()
-```
+    if rank == MASTER:
+        MPI_Gather(global_data) to gather the sorted chunks back to the master process
+    MPI_Finalize()
+    ```
 
 ### 2c. Evaluation plan - what and how will you measure and compare
 
@@ -181,56 +181,8 @@ MPI_Finalize()
 - Increase the problem size proportionally with the processors to measure the execution time whether it'll be stable or not.
 
 ### 3a. Caliper instrumentation
-Please use the caliper build `/scratch/group/csce435-f24/Caliper/caliper/share/cmake/caliper` 
-(same as lab2 build.sh) to collect caliper files for each experiment you run.
 
-Your Caliper annotations should result in the following calltree
-(use `Thicket.tree()` to see the calltree):
-```
-main
-|_ data_init_X      # X = runtime OR io
-|_ comm
-|    |_ comm_small
-|    |_ comm_large
-|_ comp
-|    |_ comp_small
-|    |_ comp_large
-|_ correctness_check
-```
-
-Required region annotations:
-- `main` - top-level main function.
-    - `data_init_X` - the function where input data is generated or read in from file. Use *data_init_runtime* if you are generating the data during the program, and *data_init_io* if you are reading the data from a file.
-    - `correctness_check` - function for checking the correctness of the algorithm output (e.g., checking if the resulting data is sorted).
-    - `comm` - All communication-related functions in your algorithm should be nested under the `comm` region.
-      - Inside the `comm` region, you should create regions to indicate how much data you are communicating (i.e., `comm_small` if you are sending or broadcasting a few values, `comm_large` if you are sending all of your local values).
-      - Notice that auxillary functions like MPI_init are not under here.
-    - `comp` - All computation functions within your algorithm should be nested under the `comp` region.
-      - Inside the `comp` region, you should create regions to indicate how much data you are computing on (i.e., `comp_small` if you are sorting a few values like the splitters, `comp_large` if you are sorting values in the array).
-      - Notice that auxillary functions like data_init are not under here.
-    - `MPI_X` - You will also see MPI regions in the calltree if using the appropriate MPI profiling configuration (see **Builds/**). Examples shown below.
-
-All functions will be called from `main` and most will be grouped under either `comm` or `comp` regions, representing communication and computation, respectively. You should be timing as many significant functions in your code as possible. **Do not** time print statements or other insignificant operations that may skew the performance measurements.
-
-### **Nesting Code Regions Example** - all computation code regions should be nested in the "comp" parent code region as following:
-```
-CALI_MARK_BEGIN("comp");
-CALI_MARK_BEGIN("comp_small");
-sort_pivots(pivot_arr);
-CALI_MARK_END("comp_small");
-CALI_MARK_END("comp");
-
-# Other non-computation code
-...
-
-CALI_MARK_BEGIN("comp");
-CALI_MARK_BEGIN("comp_large");
-sort_values(arr);
-CALI_MARK_END("comp_large");
-CALI_MARK_END("comp");
-```
-
-### **Calltree Example**:
+### **Calltrees**:
 ```
 # MPI Mergesort
 4.695 main
