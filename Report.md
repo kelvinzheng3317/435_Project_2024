@@ -331,6 +331,45 @@ perform runs that invoke algorithm2 for Sorted, ReverseSorted, and Random data).
     - Total time
     - Variance time/rank
 
+> [!IMPORTANT]  
+> The full results of Merge, Sample and Bitonic sort are in the "graphs" directory in the repository.
+
+### Evaluation of each algorithm
+
+- Bitonic Sort
+
+- Sample Sort
+
+##### Merge Sort: 
+From the results of merge sort, I have deduced that merge sort is inherently difficult to parallelize compared to other algorithms such as Sample and Bitonic due to its divide and conquer nature. Because it involves heavily on recursion, splitting and merging, the merging step becomes a bottleneck to the parallelized algorithm. 
+
+The current algorithm, each process sorts a subset of the array that the master evenly distributed but the final merging in the master still involves merging them back together in a subsequential manner. This creates a bottleneck as it becomes contradictory to parallelizing in the first place. The Thicket itself, shows that `mergeVectors` and `MPI_Recv` functions are consuming the most time. 
+
+![alt text](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_thicket.png)
+
+This indicates that the merging step is where majority of the time is being spent.
+
+Furthermore, the times in `MPI_Send` and `MPI_Recv` indicate that a large portion of the execution is waiting for data transfers between processes instead of performing computation.
+
+If we dive further into the algorithm itself, we can also see that there may be an issue with imbalance of load distributed to each worker thread from the master process. As the algorithm splits the data into even chunks based on the number of processes, there are scenarios where some subset of the array may have less than others. This means that there is a possiblity of resulting in idle processors as they wait for the others to complete their computation and merging.
+
+As mentioned before, merge sort is a divide and conquer algorithm. Because of its nature, it limits the actual effectiveness of paralleizing the sorting algorithm in the first place. Hence, sorting through subarrays become irrelevant because the merging factor becomes a bottleneck to the algorithm itself.
+
+Additionally, you can also view that there is a communication overhead as more processors are added, making the run time increase. Since more data needs to be exchanged and merged, the increase in communication outweighs the benefits of paralleizing the algorithm, leading to diminishing returns instead of faster run times.
+
+With that being said, the algorithm struggled to run higher processor counts, especially 1024, due to the communication overhead. Given the assumption that 30 minutes is the threshold to indicate whether the algorithm can run the test case, the current merge sort failed to solve large processor counts. It began to struggle around 32 processors with 2*28 as the array size. 
+
+Below are a few graphs from the merge sort evaluation. (to view all the results, check the `graphs/merge_sort` directory).
+
+![alt text](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_main_16777216.png)
+You can see that as the number of processors increase, the run time also increases. 
+
+![alt text](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_comp_large_16777216.png)
+The computation itself actually decreases as the processor count increases, indicating that increasing processors actually make it much faster to solve large computations- if the bottleneck of merging didn't exist.
+
+![alt text](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_comm_16777216.png)
+The increase in MPI communication as you increase the number of processors. In this case, the increase in communication creates a communication overhead where it outweighs the benefits of parallelizing. 
+
 
 ## 5. Presentation
 Plots for the presentation should be as follows:
