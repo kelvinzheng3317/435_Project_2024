@@ -338,7 +338,27 @@ perform runs that invoke algorithm2 for Sorted, ReverseSorted, and Random data).
 
 - Bitonic Sort
 
-- Sample Sort
+##### Sample Sort:
+NOTE: For Sample Sort, since my algorithm uses `MPI_Gatherv` to combine all the final buckets in the end into the final sorted array. My code will not run for the largest array size of 2^28. This is due to the Gatherv buffer overflowing since combining all the buckets into the buffer is too large. While I understand that there is probably a way to send only some of the buckets at a time and then combine all the buckets gradually instead of all at once. Since my code worked with all other array sizes and due to the time constraints of the project due dates, I decided to skip plotting data for arrays of size 2^28.
+
+![alt text](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_main_262144.png)
+
+![alt text](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_main_1048576.png)
+
+![alt text](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_main_67108864.png)
+
+As can be seen in the graphs. For smaller size arrays, 2^16 - 2^22, the trend in the graphs for the runtime of `main` increases as the number of processors increases. While in the graphs for the larger array sizes, 2^24 - 2^26, we can see that there is an exponential decrease in the runtime of `main` as the number of processors increases.
+This trend does make sense because depending on the input size the balance in computation costs for sorting and calculating the buckets, or partitions of the original array, versus the communication costs for sending those buckets or partitions to other processors is affected.
+
+For smaller array sizes the trend can be explained due to Communication Overhead. Since the computations take so much less time due to having less elements to sort and calculate through. The reduction in communication costs does not scale proportionally so communication from the MPI functions take much longer than computation. 
+
+For larger arrays, we can start to see the benefits of parallelization. Due to the large input sizes, the computation each process performs on its partition of the array becomes large enough to offset communication overhead costs. Thus the larger data allows for the benefits of splitting computations across multiple processes to outweigh the cost of communicating larger amounts of data.
+
+[alt text](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_thicket.png)
+
+From the CallTree you can see that out all MPI communication calls, `MPI_Alltoall` takes the longest and my final `comp_small` takes the most time.
+
+
 
 ##### Merge Sort: 
 From the results of merge sort, I have deduced that merge sort is inherently difficult to parallelize compared to other algorithms such as Sample and Bitonic due to its divide and conquer nature. Because it involves heavily on recursion, splitting and merging, the merging step becomes a bottleneck to the parallelized algorithm. 
