@@ -357,6 +357,31 @@ For Bitonic sort, the max, min, and average time/rank follow similar patterns in
 ![Sample Plot](graphs/Bitonic_avg_main_268435456.png)
 ![Sample Plot](graphs/Bitonic_min_main_268435456.png)
 
+From the data, we can see that there is an upward trend across all scenarios as you increase the number of processors. This is most likely because of the `merging` algorithm in the master process, working in a subsquential manner due to the divide and conquer nature of the merge sort.
+![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_Total-time_main_65536.png)
+![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_Total-time_main_262144.png)
+![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_Total-time_main_1048576.png)
+![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_Total-time_main_4194304.png)
+![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_Total-time_main_16777216.png)
+![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_Total-time_main_268435456.png)
+
+As for the variance, there is a large difference across all types of sizes. It lacks any trend across all processors which shows that the data here may not be actually dependent on the algorithm. Rather, its more depenedent on the actual hardware itself. It makes it difficult to make any deductions of the algorithm due to the large randomness.
+![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_variance_main_65536.png)
+![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_variance_main_262144.png)
+![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_variance_main_1048576.png)
+![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_variance_main_4194304.png)
+![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_variance_main_67108864.png)
+![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_variance_main_16777216.png)
+![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_variance_main_268435456.png)
+
+For merge sort, you can see that the array size of 65536, it starts with an upward trend and decreases after peaking around 256 processors. In addition, given the max array size of 268435456, we can see its a continuous upward trend as you increase the number of processors. based on these results, we can conclude the parallelized algorithm doesn't actually affect the performance as much when dealing with lower array sizes. It's because as you increase the number of processors as well as the array size, the master process has to do more work to merge them together at the end. 
+![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_max_main_65536.png)
+![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_min_main_65536.png)
+![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_avg_main_65536.png)
+![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_max_main_268435456.png)
+![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_min_main_268435456.png)
+![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_avg_main_268435456.png)
+
 > [!IMPORTANT]  
 > The full results of Merge, Sample and Bitonic sort are in the "graphs" directory in the repository.
 
