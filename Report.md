@@ -11,7 +11,7 @@ Group 16
 
 Team Communication Method: Discord
 
-## 2. Project topic (e.g., parallel sorting algorithms)
+## 2. Project topic - Parallel Sorting Algorithms
 
 ### 2a. Brief project description (what algorithms will you be comparing and on what architectures)
 
@@ -49,116 +49,118 @@ Team Communication Method: Discord
 - For MPI programs, include MPI calls you will use to coordinate between processes
 
 - Sample Sort Pseudocode:
-    ```
-    MPI_Init()
-    int rank
-    int num_procs
+```
+MPI_Init()
+int rank
+int num_procs
 
-    procs_elems = length(data) / num_procs   # The number of elements per process
-    local_data = empty array of proc_elems
-        
-    scatter data to processes using MPI_Scatter(local_data)
-        
-    sorted_local = sort(local_data)
-
-    if rank == 0:    # i.e. MASTER
-        sorted_subarrays = empty array
+procs_elems = length(data) / num_procs   # The number of elements per process
+local_data = empty array of proc_elems
     
-    gather sorted local data using MPI_Gather(sorted_local)
+scatter data to processes using MPI_Scatter(local_data)
+    
+sorted_local = sort(local_data)
 
-    if rank == 0:   # i.e. MASTER
-        final_sorted = merge(sorted_subarrays)
+if rank == 0:    # i.e. MASTER
+    sorted_subarrays = empty array
 
-    MPI_Finalize()
-    ```
+gather sorted local data using MPI_Gather(sorted_local)
+
+if rank == 0:   # i.e. MASTER
+    final_sorted = merge(sorted_subarrays)
+
+MPI_Finalize()
+```
 
 - Merge Sort Pseudocode:
-    ```Initialize MPI
-    int processor_rank // the current process id
-    int processor_count // total number of processors currently being used
+```Initialize MPI
+int processor_rank // the current process id
+int processor_count // total number of processors currently being used
 
-    if processor_rank == MASTER:
-        Divide the main array into subarrays based on 'processor_count'
-        for each worker:
-            send subarray using MPI_Send
+if processor_rank == MASTER:
+    Divide the main array into subarrays based on 'processor_count'
+    for each worker:
+        send subarray using MPI_Send
 
-        sortedSubArrays = init empty array
-        for each worker:
-            receive subarray from worker using MPI_Recv 
-            append received subArray into sortedSubArrays
-        
-        finalSortedArray = merge all the sortedSubArrays here
+    sortedSubArrays = init empty array
+    for each worker:
+        receive subarray from worker using MPI_Recv 
+        append received subArray into sortedSubArrays
     
-    else: // worker
-        Receive subarray from MASTER using MPI_Recv
-        Sort the subarray using MergeSort
-        Send the sorted array back to MASTER using MPI_Send
+    finalSortedArray = merge all the sortedSubArrays here
 
-    Finalize MPI
-    ```
+else: // worker
+    Receive subarray from MASTER using MPI_Recv
+    Sort the subarray using MergeSort
+    Send the sorted array back to MASTER using MPI_Send
+
+Finalize MPI
+```
 
 - Bitonic Sort Pseudocode:
-    ```
-    Int rank
-    Int N // number of processes
-    MPI_Init // initialize MPI for communication
-    MPI_Comm_rank // get the process rank
-    MPI_Comm_size // get the number of processes N
-    
-    If rank == 0:
-      Initialize int array of size 2^x where x is an integer
-      M = size(array) / N
-    
-    MPI_Bcast M(the size of local arrays) from rank 0 to all processes
-    MPI_Scatter to distribute array data among all processes 
+```plaintext
+Int rank
+Int N // number of processes
+MPI_Init // initialize MPI for communication
+MPI_Comm_rank // get the process rank
+MPI_Comm_size // get the number of processes N
 
-    array1 = array for local data of process
-    sort array1
+If rank == 0:
+  Initialize int array of size 2^x where x is an integer
+  M = size(array) / N
 
-    For (int i=1; i <= N/2; i *= 2): // i = first and largest step size of current phase
-      procs_per_group = i * 2
-      Ascending if (rank // procs_per_group) % 2 == 0, descending otherwise
-      For (int step = i; step > 0; step /= 2):
-        if (rank % step) < step / 2:
-          partner_rank = rank + step
-        else:
-          partner_rank = rank - step
-          
-        MPI_Sendrecv to send array1 to partner and put partner’s data in array2
+MPI_Bcast M(the size of local arrays) from rank 0 to all processes
+MPI_Scatter to distribute array data among all processes 
 
-        If (Ascending and rank <  partner_rank) OR (descending and rank > partner_rank):
-          Iterate from left sides of array1 and array2:
-            create a temp array of size m with the smallest values from array1 and array2, sorted in increasing order
-          Set array1 equal to temp
-        Else:
-          Iterate from the right sides of array1 and array2:
-            Create a temp array of size M of the largest values of array1 and array2 in increasing order
-          Set array1 equal to temp
+array1 = array for local data of process
+sort array1
 
-    If rank == 0:
-      Merge together all local arrays from all workers using MPI_gather
-      Print result array
-    ```
+// i = first and largest step size of current phase
+For (int i=1; i <= N/2; i *= 2): 
+  procs_per_group = i * 2
+  Ascending if (rank // procs_per_group) % 2 == 0, descending otherwise
+  For (int step = i; step > 0; step /= 2):
+    if (rank % step) < step / 2:
+      partner_rank = rank + step
+    else:
+      partner_rank = rank - step
+      
+    MPI_Sendrecv to send array1 to partner and put partner’s data in array2
+
+    If (Ascending and rank <  partner_rank) OR (descending and rank > partner_rank):
+      Iterate from left sides of array1 and array2:
+        create a temp array of size m with the smallest values from array1 and array2, sorted in increasing order
+      Set array1 equal to temp
+    Else:
+      Iterate from the right sides of array1 and array2:
+        Create a temp array of size M of the largest values of array1 and array2 in increasing order
+      Set array1 equal to temp
+
+If rank == 0:
+  Merge together all local arrays from all workers using MPI_gather
+  Print result array
+```
+
 - Radix Sort Psuedocode:
-  ```
-  array full_data
-  array global_data
-  allocate space for array local_data which holds the portion of the data for each process
-  MPI_Init()
-  if rank == MASTER:
-      MPI_Scatter(local_data) to split the full_data and send chunks to each process
-  else:
-      from least significant bit to most significant bit:
-          Count how many numbers have 0 or 1 in the current bit position
-          for each number in the local_data chunk:
-              Extract the bit at the current position for each number
-          MPI_Allreduce(global_count) to sum up the local counts across all processes
-          MPI_Scan(prefix_sum) to computer prefix_sums and determine where each process should start placing its numbers
-  
-  if rank == MASTER:
-      MPI_Gather(global_data) to gather the sorted chunks back to the master process
-  MPI_Finalize()
-  ```
+```
+array full_data
+array global_data
+allocate space for array local_data which holds the portion of the data for each process
+MPI_Init()
+if rank == MASTER:
+    MPI_Scatter(local_data) to split the full_data and send chunks to each process
+else:
+    from least significant bit to most significant bit:
+        Count how many numbers have 0 or 1 in the current bit position
+        for each number in the local_data chunk:
+            Extract the bit at the current position for each number
+        MPI_Allreduce(global_count) to sum up the local counts across all processes
+        MPI_Scan(prefix_sum) to computer prefix_sums and determine where each process should start placing its numbers
+
+if rank == MASTER:
+    MPI_Gather(global_data) to gather the sorted chunks back to the master process
+MPI_Finalize()
+```
 
 ### 2c. Evaluation plan - what and how will you measure and compare
 
@@ -381,29 +383,29 @@ For Bitonic sort, the max, min, and average time/rank follow similar patterns in
 ![Sample Plot](graphs/Bitonic_min_main_268435456.png)
 
 From the data, we can see that there is an upward trend across all scenarios as you increase the number of processors. This is most likely because of the `merging` algorithm in the master process, working in a subsquential manner due to the divide and conquer nature of the merge sort.
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_Total-time_main_65536.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_Total-time_main_262144.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_Total-time_main_1048576.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_Total-time_main_4194304.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_Total-time_main_16777216.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_Total-time_main_268435456.png)
+![Sample Plot](graphs/Merge_Total-time_main_65536.png)
+![Sample Plot](graphs/Merge_Total-time_main_262144.png)
+![Sample Plot](graphs/Merge_Total-time_main_1048576.png)
+![Sample Plot](graphs/Merge_Total-time_main_4194304.png)
+![Sample Plot](graphs/Merge_Total-time_main_16777216.png)
+![Sample Plot](graphs/Merge_Total-time_main_268435456.png)
 
 As for the variance, there is a large difference across all types of sizes. It lacks any trend across all processors which shows that the data here may not be actually dependent on the algorithm. Rather, its more depenedent on the actual hardware itself. It makes it difficult to make any deductions of the algorithm due to the large randomness.
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_variance_main_65536.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_variance_main_262144.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_variance_main_1048576.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_variance_main_4194304.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_variance_main_67108864.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_variance_main_16777216.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_variance_main_268435456.png)
+![Sample Plot](graphs/Merge_variance_main_65536.png)
+![Sample Plot](graphs/Merge_variance_main_262144.png)
+![Sample Plot](graphs/Merge_variance_main_1048576.png)
+![Sample Plot](graphs/Merge_variance_main_4194304.png)
+![Sample Plot](graphs/Merge_variance_main_67108864.png)
+![Sample Plot](graphs/Merge_variance_main_16777216.png)
+![Sample Plot](graphs/Merge_variance_main_268435456.png)
 
 For merge sort, you can see that the array size of 65536, it starts with an upward trend and decreases after peaking around 256 processors. In addition, given the max array size of 268435456, we can see its a continuous upward trend as you increase the number of processors. based on these results, we can conclude the parallelized algorithm doesn't actually affect the performance as much when dealing with lower array sizes. It's because as you increase the number of processors as well as the array size, the master process has to do more work to merge them together at the end. 
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_max_main_65536.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_min_main_65536.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_avg_main_65536.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_max_main_268435456.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_min_main_268435456.png)
-![Sample Plot](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_avg_main_268435456.png)
+![Sample Plot](graphs/Merge_max_main_65536.png)
+![Sample Plot](graphs/Merge_min_main_65536.png)
+![Sample Plot](graphs/Merge_avg_main_65536.png)
+![Sample Plot](graphs/Merge_max_main_268435456.png)
+![Sample Plot](graphs/Merge_min_main_268435456.png)
+![Sample Plot](graphs/Merge_avg_main_268435456.png)
 
 > [!IMPORTANT]  
 > The full results of Merge, Sample and Bitonic sort are in the "graphs" directory in the repository.
@@ -413,10 +415,10 @@ For merge sort, you can see that the array size of 65536, it starts with an upwa
 ##### Bitonic Sort:
 It seems Bitonic sort is good for parallelization and does contribute to a notable reduction in time for the sorting to complete. This, however, is only the case for very large arrays. My algorithm first divides the array among the processes and then sorts each array locally. It then proceeds to do a series of phases where processes are matched and the two processes send each other their arrays in order to create new local arrays out of the contents of both processes local array. This processes requires communication and overhead between processes which is enabled through MPI. This additional overhead is worth it for larger arrays but not for smaller ones.
 
-![alt text](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Bitonic_avg_main_65536.png)
+![alt text](graphs/Bitonic_avg_main_65536.png)
 Looking at the graphs, we can see that increasing the number of processes generally hurts the sorting times for smaller arrays, specifically arrays of size 2^22 or smaller. This is likely due to the additional cost of overhead and communication that comes with a greater number of proceses. When the array are small, the costs of overhead doesn't justify the time saved from parallelization.
 
-![alt text](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Bitonic_avg_main_268435456.png)
+![alt text](graphs/Bitonic_avg_main_268435456.png)
 As you can see in the graph, this pattern isn't the case with larger arrays. In fact, its the opposite with times improving with increased number of processes for these large arrays of size 2^24 or larger. Sorting very large arrays locally is very time consuming and difficult and thus there's a lot more benefit to parallelizing the sort so that each process have to work with a smaller array. Thus, the parallelization offered with Bitonic sort helps notably improve performance sorting larger arrays.
 
 Note that there are random missing points within some of the Bitonic sort data. This is due to issues with time out and lack of credits. The team is looking for ways to remedy this problem but we may choose to skip out on the more expensive jobs (specifically the 1024 processes ones) due to scarcity of grace credits. 
@@ -424,11 +426,11 @@ Note that there are random missing points within some of the Bitonic sort data. 
 ##### Sample Sort:
 NOTE: For Sample Sort, since my algorithm uses `MPI_Gatherv` to combine all the final buckets in the end into the final sorted array. My code will not run for the largest array size of 2^28. This is due to the Gatherv buffer overflowing since combining all the buckets into the buffer is too large. While I understand that there is probably a way to send only some of the buckets at a time and then combine all the buckets gradually instead of all at once. Since my code worked with all other array sizes and due to the time constraints of the project due dates, I decided to skip plotting data for arrays of size 2^28.
 
-![alt text](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_main_262144.png)
+![alt text](graphs/Sample_main_262144.png)
 
-![alt text](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_main_1048576.png)
+![alt text](graphs/Sample_main_1048576.png)
 
-![alt text](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_main_67108864.png)
+![alt text](graphs/Sample_main_67108864.png)
 
 As can be seen in the graphs. For smaller size arrays, 2^16 - 2^22, the trend in the graphs for the runtime of `main` increases as the number of processors increases. While in the graphs for the larger array sizes, 2^24 - 2^26, we can see that there is an exponential decrease in the runtime of `main` as the number of processors increases.
 This trend does make sense because depending on the input size the balance in computation costs for sorting and calculating the buckets, or partitions of the original array, versus the communication costs for sending those buckets or partitions to other processors is affected.
@@ -437,7 +439,7 @@ For smaller array sizes the trend can be explained due to Communication Overhead
 
 For larger arrays, we can start to see the benefits of parallelization. Due to the large input sizes, the computation each process performs on its partition of the array becomes large enough to offset communication overhead costs. Thus the larger data allows for the benefits of splitting computations across multiple processes to outweigh the cost of communicating larger amounts of data.
 
-[alt text](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Sample_thicket.png)
+[alt text](graphs/Sample_thicket.png)
 
 From the CallTree you can see that out all MPI communication calls, `MPI_Alltoall` takes the longest and my final `comp_small` takes the most time.
 
@@ -448,7 +450,7 @@ From the results of merge sort, I have deduced that merge sort is inherently dif
 
 The current algorithm, each process sorts a subset of the array that the master evenly distributed but the final merging in the master still involves merging them back together in a subsequential manner. This creates a bottleneck as it becomes contradictory to parallelizing in the first place. The Thicket itself, shows that `mergeVectors` and `MPI_Recv` functions are consuming the most time. 
 
-![alt text](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_thicket.png)
+![alt text](graphs/Merge_thicket.png)
 
 This indicates that the merging step is where majority of the time is being spent.
 
@@ -464,13 +466,13 @@ With that being said, the algorithm struggled to run higher processor counts, es
 
 Below are a few graphs from the merge sort evaluation. (to view all the results, check the `graphs/merge_sort` directory).
 
-![alt text](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_main_16777216.png)
+![alt text](graphs/Merge_main_16777216.png)
 You can see that as the number of processors increase, the run time also increases. 
 
-![alt text](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_comp_large_16777216.png)
+![alt text](graphs/Merge_comp_large_16777216.png)
 The computation itself actually decreases as the processor count increases, indicating that increasing processors actually make it much faster to solve large computations- if the bottleneck of merging didn't exist.
 
-![alt text](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Merge_comm_16777216.png)
+![alt text](graphs/Merge_comm_16777216.png)
 The increase in MPI communication as you increase the number of processors. In this case, the increase in communication creates a communication overhead where it outweighs the benefits of parallelizing. 
 
 
