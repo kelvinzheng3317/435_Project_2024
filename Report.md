@@ -362,7 +362,16 @@ For Bitonic sort, the max, min, and average time/rank follow similar patterns in
 
 ### Evaluation of each algorithm
 
-- Bitonic Sort
+##### Bitonic Sort:
+It seems Bitonic sort is good for parallelization and does contribute to a notable reduction in time for the sorting to complete. This, however, is only the case for very large arrays. My algorithm first divides the array among the processes and then sorts each array locally. It then proceeds to do a series of phases where processes are matched and the two processes send each other their arrays in order to create new local arrays out of the contents of both processes local array. This processes requires communication and overhead between processes which is enabled through MPI. This additional overhead is worth it for larger arrays but not for smaller ones.
+
+![alt text](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Bitonic_avg_main_65536.png)
+Looking at the graphs, we can see that increasing the number of processes generally hurts the sorting times for smaller arrays, specifically arrays of size 2^22 or smaller. This is likely due to the additional cost of overhead and communication that comes with a greater number of proceses. When the array are small, the costs of overhead doesn't justify the time saved from parallelization.
+
+![alt text](https://github.com/kelvinzheng3317/435_Project_2024/blob/main/graphs/Bitonic_avg_main_268435456.png)
+As you can see in the graph, this pattern isn't the case with larger arrays. In fact, its the opposite with times improving with increased number of processes for these large arrays of size 2^24 or larger. Sorting very large arrays locally is very time consuming and difficult and thus there's a lot more benefit to parallelizing the sort so that each process have to work with a smaller array. Thus, the parallelization offered with Bitonic sort helps notably improve performance sorting larger arrays.
+
+Note that there are random missing points within some of the Bitonic sort data. This is due to issues with time out and lack of credits. The team is looking for ways to remedy this problem but we may choose to skip out on the more expensive jobs (specifically the 1024 processes ones) due to scarcity of grace credits. 
 
 ##### Sample Sort:
 NOTE: For Sample Sort, since my algorithm uses `MPI_Gatherv` to combine all the final buckets in the end into the final sorted array. My code will not run for the largest array size of 2^28. This is due to the Gatherv buffer overflowing since combining all the buckets into the buffer is too large. While I understand that there is probably a way to send only some of the buckets at a time and then combine all the buckets gradually instead of all at once. Since my code worked with all other array sizes and due to the time constraints of the project due dates, I decided to skip plotting data for arrays of size 2^28.
