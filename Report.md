@@ -348,6 +348,7 @@ For Bitonic sort, the variance time/rank for main graphs follows patterns very s
 ![Sample Plot](graphs/Bitonic_variance_main_16777216.png)
 ![Sample Plot](graphs/Bitonic_variance_main_67108864.png)
 ![Sample Plot](graphs/Bitonic_variance_main_268435456.png)
+
 > [!IMPORTANT]  
 > The full results of Merge, Sample and Bitonic sort are in the "graphs" directory in the repository.
 
