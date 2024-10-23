@@ -165,9 +165,9 @@ Team Communication Method: Discord
 ### 2c. Evaluation plan - what and how will you measure and compare
 
 ### Input Sizes / Input Types
-- Varying sizes in order to test the scalability 
-    - Example: 10<sup>4</sup>, 10<sup>6</sup>, 10<sup>8</sup>...
-- Input types will consist of random data, sorted data, and reversally sorted arrays
+- Varying input sizes in order to test the scalability 
+    - Sizes: 2<sup>16</sup>, 2<sup>18</sup>, 2<sup>20</sup>, 2<sup>22</sup>, 2<sup>24</sup>, 2<sup>26</sup>,  2<sup>28</sup>
+- Input types will consist of random data, sorted data, reverse sorted, and 1% perturbed sorted arrays
 
 ### Time:
 - Measure the total time taken to sort the array using different number of processors.
@@ -179,6 +179,13 @@ Team Communication Method: Discord
 
 #### Weak Scaling
 - Increase the problem size proportionally with the processors to measure the execution time whether it'll be stable or not.
+- Specific processes will be tied to specific input sizes.
+  - processes - input size
+  - 2 - 2^16
+  - 8 - 2^18
+  - 32 - 2^20
+  - 128 - 2^22
+  - 512 - 2^24
 
 ### 3a. Caliper instrumentation
 
