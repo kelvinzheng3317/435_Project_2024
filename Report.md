@@ -269,6 +269,29 @@ CALI_MARK_END("comp");
    ├─ 0.003 correctness_check
    └─ 0.023 data_init_runtime
 ``` 
+```
+# MPI Sample
+0.536 main
+├─ 0.007 MPI_Comm_dup
+├─ 0.000 MPI_Finalize
+├─ 0.000 MPI_Finalized
+├─ 0.000 MPI_Initialized
+└─ 0.524 main
+   ├─ 0.000 MPI_Init
+   ├─ 0.019 comm
+   │  ├─ 0.015 comm_large
+   │  │  ├─ 0.001 MPI_Alltoallv
+   │  │  ├─ 0.000 MPI_Gather
+   │  │  ├─ 0.002 MPI_Gatherv
+   │  │  └─ 0.011 MPI_Scatter
+   │  └─ 0.004 comm_small
+   │     ├─ 0.003 MPI_Alltoall
+   │     └─ 0.001 MPI_Bcast
+   ├─ 0.046 comp
+   │  └─ 0.046 comp_small
+   ├─ 0.007 correctness_check
+   └─ 0.003 data_init_runtime
+```
 
 ### 3b. Collect Metadata
 
