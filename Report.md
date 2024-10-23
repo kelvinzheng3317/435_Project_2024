@@ -349,6 +349,14 @@ For Bitonic sort, the variance time/rank for main graphs follows patterns very s
 ![Sample Plot](graphs/Bitonic_variance_main_67108864.png)
 ![Sample Plot](graphs/Bitonic_variance_main_268435456.png)
 
+For Bitonic sort, the max, min, and average time/rank follow similar patterns in relation to number of processes. They all increase as the number of processes increases for the smaller arrays (2^16 to 2^22) but decrease as the number of processes increase for larger arrays (2^24 to 2^28). This means that the extra communication and overhead that comes with a greater number of processes outweigh the parallelization and time saved on smaller arrays but become worth it as the arrays become larger in size, 
+![Sample Plot](graphs/Bitonic_max_main_65536.png)
+![Sample Plot](graphs/Bitonic_avg_main_65536.png)
+![Sample Plot](graphs/Bitonic_min_main_65536.png)
+![Sample Plot](graphs/Bitonic_max_main_268435456.png)
+![Sample Plot](graphs/Bitonic_avg_main_268435456.png)
+![Sample Plot](graphs/Bitonic_min_main_268435456.png)
+
 > [!IMPORTANT]  
 > The full results of Merge, Sample and Bitonic sort are in the "graphs" directory in the repository.
 
