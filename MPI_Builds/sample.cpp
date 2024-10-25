@@ -109,19 +109,21 @@ int main(int argc, char* argv[]) {
         vector<int> samples(num_procs);
 
         CALI_MARK_BEGIN(comp);
-        CALI_MARK_BEGIN(comp_large);
+        CALI_MARK_BEGIN(comp_small);
         for (int i = 0; i < num_procs; ++i) {
             samples[i] = mainArr[i * (initSize / num_procs)];
         }
+        CALI_MARK_END(comp_small);
 
         CALI_MARK_BEGIN(comp_small);
         sort(samples.begin(), samples.end());
         CALI_MARK_END(comp_small);
 
+        CALI_MARK_BEGIN(comp_small);
         for (int i = 1; i < num_procs; ++i) {
             pivots[i - 1] = samples[i * num_procs / (num_procs + 1)];   //NOTE
         }
-        CALI_MARK_END(comp_large);
+        CALI_MARK_END(comp_small);
         CALI_MARK_END(comp);
     }
 
@@ -199,9 +201,9 @@ int main(int argc, char* argv[]) {
 
     // Sort receive buffer 
     CALI_MARK_BEGIN(comp);
-    CALI_MARK_BEGIN(comp_small);
+    CALI_MARK_BEGIN(comp_large);
     sort(recvBuff.begin(), recvBuff.end());
-    CALI_MARK_END(comp_small);
+    CALI_MARK_END(comp_large);
     CALI_MARK_END(comp);
 
     // Hold sizes of receive buffer from each rank
@@ -210,9 +212,9 @@ int main(int argc, char* argv[]) {
     // Gather receive buffer sizes from all ranks 
     int recvBuffSize = recvBuff.size();
     CALI_MARK_BEGIN(comm);
-    CALI_MARK_BEGIN(comm_large);
+    CALI_MARK_BEGIN(comm_small);
     MPI_Gather(&recvBuffSize, 1, MPI_INT, finalRecvCounts.data(), 1, MPI_INT, 0, MPI_COMM_WORLD);
-    CALI_MARK_END(comm_large);
+    CALI_MARK_END(comm_small);
     CALI_MARK_END(comm);
 
     // Calculate displacements for final receive buffers
@@ -221,11 +223,11 @@ int main(int argc, char* argv[]) {
         finalRecvDispls[0] = 0;
 
         CALI_MARK_BEGIN(comp);
-        CALI_MARK_BEGIN(comp_small);
+        CALI_MARK_BEGIN(comp_large);
         for (int i = 1; i < num_procs; ++i) {
             finalRecvDispls[i] = finalRecvDispls[i - 1] + finalRecvCounts[i - 1];
         }
-        CALI_MARK_END(comp_small);
+        CALI_MARK_END(comp_large);
         CALI_MARK_END(comp);
     }
 
