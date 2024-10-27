@@ -192,21 +192,23 @@ Team Communication Method: Discord
 ### **Calltrees**:
 ```
 # MPI Mergesort
-4.695 main
-├─ 0.001 MPI_Comm_dup
-├─ 0.000 MPI_Finalize
-├─ 0.000 MPI_Finalized
-├─ 0.000 MPI_Init
-├─ 0.000 MPI_Initialized
-├─ 2.599 comm
-│  ├─ 2.572 MPI_Barrier
-│  └─ 0.027 comm_large
-│     ├─ 0.011 MPI_Gather
-│     └─ 0.016 MPI_Scatter
-├─ 0.910 comp
-│  └─ 0.909 comp_large
-├─ 0.201 data_init_runtime
-└─ 0.440 correctness_check
+0.162 MPI_Comm_dup
+0.000 MPI_Finalize
+0.000 MPI_Finalized
+0.000 MPI_Initialized
+2.242 main
+├─ 0.011 MPI_Barrier
+├─ 0.072 comm
+│  └─ 0.072 comm_large
+│     └─ 0.028 MPI_Sendrecv
+├─ 1.866 comp
+│  └─ 1.866 comp_large
+├─ 0.266 correctness_check
+│  ├─ 0.000 MPI_Gather
+│  └─ 0.246 comm
+│     └─ 0.246 comm_large
+│        └─ 0.246 MPI_Gatherv
+└─ 0.026 data_init_runtime
 ```
 ```
 # MPI Bitonic
