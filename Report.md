@@ -254,14 +254,7 @@ Team Communication Method: Discord
    │  └─ 0.046 comp_small
    ├─ 0.007 correctness_check
    └─ 0.003 data_init_runtime
-```
-- Bitonic Sort
-- Sample Sort
-- Merge Sort:
-  
-![alt text](graphs/Merge_thicket.png)
-
-      
+```   
 
 ### 3b. Collect Metadata
 
@@ -350,7 +343,7 @@ For Bitonic sort, the max, min, and average time/rank follow similar patterns in
 ![Sample Plot](graphs/Bitonic_avg_main_268435456.png)
 ![Sample Plot](graphs/Bitonic_min_main_268435456.png)
 
-From the data, we can see that there is an upward trend across all scenarios as you increase the number of processors. This is most likely because of the `merging` algorithm in the master process, working in a subsquential manner due to the divide and conquer nature of the merge sort.
+For Merge sort, you can observe some noise within small inputs but as the input size increases, it becomes an increasing trend as you increase the number of processors. This is most likely due to the fact that the merge sort algorithm has it where each processor communicate with their relative processors, increasing the overall time to sort an array.
 ![Sample Plot](graphs/Merge_Total-time_main_65536.png)
 ![Sample Plot](graphs/Merge_Total-time_main_262144.png)
 ![Sample Plot](graphs/Merge_Total-time_main_1048576.png)
@@ -358,7 +351,7 @@ From the data, we can see that there is an upward trend across all scenarios as 
 ![Sample Plot](graphs/Merge_Total-time_main_16777216.png)
 ![Sample Plot](graphs/Merge_Total-time_main_268435456.png)
 
-As for the variance, there is a large difference across all types of sizes. It lacks any trend across all processors which shows that the data here may not be actually dependent on the algorithm. Rather, its more depenedent on the actual hardware itself. It makes it difficult to make any deductions of the algorithm due to the large randomness.
+As for the variance, the results come out as "random". In some graphs, some array types spike up while some stay stabilized. From the random noise we get from these graphs, we deduce a common problem in parallelism: input data characteristics significantly impact the task distribution, which leads to variations in processing efficiency.
 ![Sample Plot](graphs/Merge_variance_main_65536.png)
 ![Sample Plot](graphs/Merge_variance_main_262144.png)
 ![Sample Plot](graphs/Merge_variance_main_1048576.png)
@@ -367,7 +360,7 @@ As for the variance, there is a large difference across all types of sizes. It l
 ![Sample Plot](graphs/Merge_variance_main_16777216.png)
 ![Sample Plot](graphs/Merge_variance_main_268435456.png)
 
-For merge sort, you can see that the array size of 65536, it starts with an upward trend and decreases after peaking around 256 processors. In addition, given the max array size of 268435456, we can see its a continuous upward trend as you increase the number of processors. based on these results, we can conclude the parallelized algorithm doesn't actually affect the performance as much when dealing with lower array sizes. It's because as you increase the number of processors as well as the array size, the master process has to do more work to merge them together at the end. 
+For merge sort, you can see that the array size of 65536, it starts with an upward trend and decreases after peaking around 64 processors. In addition, given the max array size of 268435456, we can see a decrease in processing times as you increase the number of processors. From this, we can conclude that parallelizing merge sort is best suited to handle large data sets instead of small ones like 65536. The main indicator that small input data sizes aren't best suited for parallelizing is the randomness of times from the 65536, compared to 2^28 graph, there is a consistent trend with a decrease expotential function.
 ![Sample Plot](graphs/Merge_max_main_65536.png)
 ![Sample Plot](graphs/Merge_min_main_65536.png)
 ![Sample Plot](graphs/Merge_avg_main_65536.png)
@@ -439,39 +432,34 @@ From the CallTree you can see that out all MPI communication calls, `MPI_Alltoal
 
 
 ##### Merge Sort: 
-From the results of merge sort, I have deduced that merge sort is inherently difficult to parallelize compared to other algorithms such as Sample and Bitonic due to its divide and conquer nature. Because it involves heavily on recursion, splitting and merging, the merging step becomes a bottleneck to the parallelized algorithm. 
+When I first created the merge sort algorithm, I was ultimately forced to recreate my algorithm due to extremely poor performance. The original algorithm, was made to merge all the subarrays that each worker thread sorted at the master process, creating a sequential merge. This defeated the purpose of paralleizing in the first place and made the overall algorithm extremely slow. Hence, by making each processor communicate to their relative processors as they merge, we can create an algorithm where it efficiently merges alongside with parallelism.
 
-The current algorithm, each process sorts a subset of the array that the master evenly distributed but the final merging in the master still involves merging them back together in a subsequential manner. This creates a bottleneck as it becomes contradictory to parallelizing in the first place. The Thicket itself, shows that `mergeVectors` and `MPI_Recv` functions are consuming the most time. 
-
-![alt text](graphs/Merge_thicket.png)
-
-This indicates that the merging step is where majority of the time is being spent.
-
-Furthermore, the times in `MPI_Send` and `MPI_Recv` indicate that a large portion of the execution is waiting for data transfers between processes instead of performing computation.
-
-If we dive further into the algorithm itself, we can also see that there may be an issue with imbalance of load distributed to each worker thread from the master process. As the algorithm splits the data into even chunks based on the number of processes, there are scenarios where some subset of the array may have less than others. This means that there is a possiblity of resulting in idle processors as they wait for the others to complete their computation and merging.
-
-As mentioned before, merge sort is a divide and conquer algorithm. Because of its nature, it limits the actual effectiveness of paralleizing the sorting algorithm in the first place. Hence, sorting through subarrays become irrelevant because the merging factor becomes a bottleneck to the algorithm itself.
-
-Additionally, you can also view that there is a communication overhead as more processors are added, making the run time increase. Since more data needs to be exchanged and merged, the increase in communication outweighs the benefits of paralleizing the algorithm, leading to diminishing returns instead of faster run times.
-
-With that being said, the algorithm struggled to run higher processor counts, especially 1024, due to the communication overhead. Given the assumption that 30 minutes is the threshold to indicate whether the algorithm can run the test case, the current merge sort failed to solve large processor counts. It began to struggle around 32 processors with 2*28 as the array size. 
+The new algorithm works similarly like a binary tree, merge each other as they went. Instead of collecting everthing at the end we choose to merge as we go minimizing the unnecessary time to merge all the subarrays together.
 
 Below are a few graphs from the merge sort evaluation. (to view all the results, check the `graphs/merge_sort` directory).
 
 ![alt text](graphs/Merge_main_16777216.png)
-You can see that as the number of processors increase, the run time also increases. 
+You can see that as the number of processors increase, the run time decreases expotentially.
 
 ![alt text](graphs/Merge_comp_large_16777216.png)
 The computation itself actually decreases as the processor count increases, indicating that increasing processors actually make it much faster to solve large computations- if the bottleneck of merging didn't exist.
 
 ![alt text](graphs/Merge_comm_16777216.png)
-The increase in MPI communication as you increase the number of processors. In this case, the increase in communication creates a communication overhead where it outweighs the benefits of parallelizing. 
+As for the communication graph, you can see that around 64 processors, the communications stabilize around 0.08 and continue to stabilize as you increase the number processors past that point. 
+
+Similarly to the main, where at 64 processors it stabilizes around 0, we can conclude that for our parallelized merge sort, we do not need to increase the processor usage after 64 because it does not make the algorithm any better; simply wasting more resources.
+
+### Strong Scaling
 
 ![alt text](graphs/Strong_Scaling_All_Algs_main_avgTime_262144_typeRandom.png)
 ![alt text](graphs/Strong_Scaling_All_Algs_main_avgTime_67108864_typeRandom.png)
 The first graph above show that increased number of processes does not result in reduced times for all algorithms when it comes to smaller array sizes. In fact, the times notably worsened with increased number of processes for Bitonic and Sample sort due to the increase communication and overhead that comes with more processes. From the second graph above, it can be seen that times do improve with increased number of processes for all algorithms when it comes to larger array sizes. This shows that all the algorithms parallelized well to some degree. Additionally, we can see the reduction in time start to level off around 64 to 128 processes due to diminishing returns from dividing the subproblem any further.
 
+### Weak Scaling
+
+![alt text](graphs/weak_scaling_random.png)
+![alt text](graphs/weak_scaling_reverse.png)
+From the weak scaling graphs, you can see that as you increase the number of processors and input size proportionally, there is an increasing trend across all three algorithms. Notably merge sort however, perform the best in terms of weak scaling compared to the other two algorithms. We can tell becuase compared to Bitonic and Smaple, merge sort has a subtle increase in their execution times. This is most likely because each processor in merge sort handles a small chunk of data as you increase the number of processors - reducing the individual computational load. From this, we can conclude that out of all three algorithms presented, merge sort distributes the work evenly the best compared to the other twoo algorithms.
 
 ## 5. Presentation
 Plots for the presentation should be as follows:
