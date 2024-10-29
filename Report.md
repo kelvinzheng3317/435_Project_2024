@@ -255,7 +255,6 @@ Team Communication Method: Discord
    ├─ 0.007 correctness_check
    └─ 0.003 data_init_runtime
 ```
-```
 - Bitonic Sort
 - Sample Sort
 - Merge Sort:
