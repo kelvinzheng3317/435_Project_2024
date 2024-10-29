@@ -469,6 +469,10 @@ The computation itself actually decreases as the processor count increases, indi
 ![alt text](graphs/Merge_comm_16777216.png)
 The increase in MPI communication as you increase the number of processors. In this case, the increase in communication creates a communication overhead where it outweighs the benefits of parallelizing. 
 
+![alt text](graphs/Strong_Scaling_All_Algs_main_avgTime_262144_typeRandom.png)
+![alt text](graphs/Strong_Scaling_All_Algs_main_avgTime_67108864_typeRandom.png)
+The first graph above show that increased number of processes does not result in reduced times for all algorithms when it comes to smaller array sizes. In fact, the times notably worsened with increased number of processes for Bitonic and Sample sort due to the increase communication and overhead that comes with more processes. From the second graph above, it can be seen that times do improve with increased number of processes for all algorithms when it comes to larger array sizes. This shows that all the algorithms parallelized well to some degree. Additionally, we can see the reduction in time start to level off around 64 to 128 processes due to diminishing returns from dividing the subproblem any further.
+
 
 ## 5. Presentation
 Plots for the presentation should be as follows:
