@@ -457,6 +457,9 @@ The first graph above show that increased number of processes does not result in
 
 ### Strong Scaling Speedup
 
+![alt text](graphs/Speedup_262144_random.png)
+![alt text](graphs/Speedup_67108864_random.png)
+From the speedup graphs we can see that for smaller arrays, Bitonic and Sample sort actually decrease in speedup overall as the number of processes increases. This trend is due to the increased communication overhead outpacing the decrease in local sorting times since the array is so small in the first place. But for Merge sort we can see that there is generally no effect on speedup at smaller input sizes. This is due to Merge sort's divide and conquer nature so adding more processes just increases the number of communication operations being done while not having a sizeable impact on sorting times at small array sizes. But in the graph for the large array size, we can clearly see that the benefits in sorting time reduction do outweigh the communication overhead for Bitonic and Sample sort. A key thing to note is that Merge sort does experience increased speedup in the graph for the larger array. However the scale of the speedup is much smaller than that of Bitonic and Sample sort so in the graph it looks like there isn't any.
 
 ### Weak Scaling
 
