@@ -455,6 +455,9 @@ Similarly to the main, where at 64 processors it stabilizes around 0, we can con
 ![alt text](graphs/Strong_Scaling_All_Algs_main_avgTime_67108864_typeRandom.png)
 The first graph above show that increased number of processes does not result in reduced times for all algorithms when it comes to smaller array sizes. In fact, the times notably worsened with increased number of processes for Bitonic and Sample sort due to the increase communication and overhead that comes with more processes. From the second graph above, it can be seen that times do improve with increased number of processes for all algorithms when it comes to larger array sizes. This shows that all the algorithms parallelized well to some degree. Additionally, we can see the reduction in time start to level off around 64 to 128 processes due to diminishing returns from dividing the subproblem any further.
 
+### Strong Scaling Speedup
+
+
 ### Weak Scaling
 
 ![alt text](graphs/weak_scaling_random.png)
